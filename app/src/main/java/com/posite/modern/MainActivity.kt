@@ -60,10 +60,10 @@ fun ConvertUnit() {
             mutableStateOf("")
         }
         val inputUnit = remember {
-            mutableStateOf("")
+            mutableStateOf("Meter")
         }
         val outputUnit = remember {
-            mutableStateOf("")
+            mutableStateOf("Meter")
         }
         val inputTypeMenuExpand = remember {
             mutableStateOf(false)
@@ -92,7 +92,9 @@ fun ConvertUnit() {
         Spacer(modifier = Modifier.height(8.dp))
         OutlinedTextField(
             value = inputValue.value,
-            onValueChange = { inputValue.value = it },
+            onValueChange = {
+                inputValue.value = it
+                convertUnit() },
             maxLines = 1,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
             label = { Text(text = "Enter Number") },
@@ -170,7 +172,7 @@ fun ConvertUnit() {
             }
         }
         Spacer(modifier = Modifier.height(8.dp))
-        Text(text = "Convert Results: ${outputValue.value}")
+        Text(text = "${inputValue.value} ${inputUnit.value} is ${outputValue.value} ${outputUnit.value}")
     }
 }
 
