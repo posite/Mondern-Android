@@ -35,6 +35,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -71,6 +72,7 @@ fun ShoppingList() {
     var showDialog by remember { mutableStateOf(false) }
     var itemName by remember { mutableStateOf("") }
     var itemQuantity by remember { mutableStateOf("") }
+    var standardId by remember { mutableStateOf(0) }
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -95,10 +97,28 @@ fun ShoppingList() {
         LazyColumn(
             modifier = Modifier
                 .align(Alignment.TopCenter)
-                .padding(top = 16.dp)
+                .padding(top = 24.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             items(shoppingItems) { shoppingItem ->
-                ShoppingListItems(shoppingItem, {}, {})
+                if (shoppingItem.itemEditing) {
+                    ShoppingItemEditor(currentItem = shoppingItem) {
+                        shoppingItems = shoppingItems.map { item ->
+                            if (item.id == it.id) {
+                                it
+                            } else {
+                                item
+                            }
+                        }
+                    }
+                } else {
+                    ShoppingListItems(shoppingItem, onEditClick = {
+                        shoppingItems =
+                            shoppingItems.map { it.copy(itemEditing = it.id == shoppingItem.id) }
+                    }, onDeleteClick = {
+                        shoppingItems = shoppingItems - shoppingItem
+                    })
+                }
             }
         }
     }
@@ -111,7 +131,7 @@ fun ShoppingList() {
                         onClick = {
                             if (itemName.isNotEmpty() && itemQuantity.isNotEmpty()) {
                                 shoppingItems = shoppingItems + ShoppingItem(
-                                    id = shoppingItems.size,
+                                    id = standardId++,
                                     name = itemName,
                                     quantity = itemQuantity.toDouble().toInt()
                                 )
@@ -169,35 +189,78 @@ fun ShoppingListItems(
     onEditClick: () -> Unit,
     onDeleteClick: () -> Unit
 ) {
-    Row(
+    Box(
         modifier = Modifier
             .fillMaxWidth()
             .border(
                 border = BorderStroke(1.dp, Color(0xFF00b0f0)),
                 shape = RoundedCornerShape(16.dp)
             )
-            .padding(8.dp),
+            .padding(horizontal = 12.dp, vertical = 8.dp),
         /*verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween*/
     ) {
-        Text(text = shoppingItem.name)
-        Text(text = shoppingItem.quantity.toString())
-        Icon(
-            modifier = Modifier.clickable(
-                interactionSource = remember { MutableInteractionSource() },
-                indication = CustomIndication
-            ) { onEditClick() },
-            imageVector = Icons.Default.Edit,
-            contentDescription = ""
-        )
-        Icon(
-            modifier = Modifier.clickable(
-                interactionSource = remember { MutableInteractionSource() },
-                indication = CustomIndication
-            ) { onDeleteClick() },
-            imageVector = Icons.Default.Delete,
-            contentDescription = ""
-        )
+        Row(modifier = Modifier.align(alignment = Alignment.CenterStart)) {
+            Text(text = shoppingItem.name)
+            Spacer(modifier = Modifier.width(16.dp))
+            Text(text = shoppingItem.quantity.toString())
+        }
+        Row(modifier = Modifier.align(alignment = Alignment.CenterEnd)) {
+            IconButton(onClick = onEditClick) {
+                Icon(imageVector = Icons.Default.Edit, contentDescription = "")
+            }
+            Spacer(modifier = Modifier.width(8.dp))
+            IconButton(onClick = onDeleteClick) {
+                Icon(imageVector = Icons.Default.Delete, contentDescription = "")
+            }
+        }
+    }
+}
+
+@Composable
+fun ShoppingItemEditor(currentItem: ShoppingItem, onItemChange: (ShoppingItem) -> Unit) {
+    var itemName by remember { mutableStateOf(currentItem.name) }
+    var itemQuantity by remember { mutableStateOf(currentItem.quantity.toString()) }
+    var itemEdited by remember { mutableStateOf(currentItem.itemEditing) }
+
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 12.dp, vertical = 8.dp),
+    ) {
+        Column(modifier = Modifier.align(alignment = Alignment.CenterStart)) {
+            OutlinedTextField(
+                modifier = Modifier.width(200.dp),
+                value = itemName,
+                onValueChange = { itemName = it },
+                label = { Text("Item Name") },
+                maxLines = 1,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            OutlinedTextField(
+                modifier = Modifier.width(200.dp),
+                value = itemQuantity,
+                onValueChange = { itemQuantity = it },
+                label = { Text("Quantity") },
+                maxLines = 1,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+            )
+        }
+        Button(modifier = Modifier.align(alignment = Alignment.CenterEnd), onClick = {
+            if (itemName.isNotEmpty() && itemQuantity.isNotEmpty()) {
+                itemEdited = false
+                onItemChange(
+                    currentItem.copy(
+                        name = itemName,
+                        quantity = itemQuantity.toDouble().toInt(),
+                        itemEditing = itemEdited
+                    )
+                )
+            }
+        }) {
+            Text(text = "Save")
+        }
     }
 }
 
