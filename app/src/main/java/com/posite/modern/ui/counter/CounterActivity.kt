@@ -1,4 +1,4 @@
-package com.posite.modern.counter
+package com.posite.modern.ui.counter
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity

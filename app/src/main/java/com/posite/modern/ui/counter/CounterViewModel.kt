@@ -1,4 +1,4 @@
-package com.posite.modern.counter
+package com.posite.modern.ui.counter
 
 import androidx.compose.runtime.State
 

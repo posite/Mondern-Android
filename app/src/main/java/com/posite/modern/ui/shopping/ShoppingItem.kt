@@ -1,4 +1,4 @@
-package com.posite.modern.shopping
+package com.posite.modern.ui.shopping
 
 data class ShoppingItem(
     val id: Int,
