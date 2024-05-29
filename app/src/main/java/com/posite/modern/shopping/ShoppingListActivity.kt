@@ -1,4 +1,4 @@
-package com.posite.modern
+package com.posite.modern.shopping
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
