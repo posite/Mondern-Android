@@ -17,9 +17,12 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
@@ -47,6 +50,8 @@ fun MealCategories(viewModel: MealViewModel) {
         LaunchedEffect(Unit) {
             viewModel.getCategories()
         }
+        val categories by viewModel.categories.collectAsState()
+        //이미지들이 한번에 로드되는 것 처럼 보이려면 isLoading 으로 확인 필요
         when (viewModel.isLoding.value) {
             true -> {
                 CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
@@ -58,7 +63,7 @@ fun MealCategories(viewModel: MealViewModel) {
                     modifier = Modifier
                         .fillMaxSize()
                 ) {
-                    items(viewModel.categories.value) {
+                    items(categories) {
                         MealCategory(it)
                     }
                 }
@@ -87,7 +92,7 @@ fun MealCategory(category: Category) {
         Spacer(modifier = Modifier.height(4.dp))
         Text(
             text = category.strCategory,
-            style = androidx.compose.ui.text.TextStyle(fontSize = 20.sp)
+            style = TextStyle(fontSize = 20.sp)
         )
 
     }

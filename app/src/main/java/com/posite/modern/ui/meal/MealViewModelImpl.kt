@@ -7,12 +7,14 @@ import androidx.lifecycle.viewModelScope
 import com.posite.modern.data.model.Category
 import com.posite.modern.data.repository.MealRepository
 import com.posite.modern.module.RetrofitInstance
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 class MealViewModelImpl : ViewModel(), MealViewModel {
     private val repository: MealRepository = MealRepository(RetrofitInstance.mealService)
-    private val _categories = mutableStateOf(listOf<Category>())
-    override val categories: State<List<Category>>
+    private val _categories = MutableStateFlow(emptyList<Category>())
+    override val categories: StateFlow<List<Category>>
         get() = _categories
 
     private val _isLoding = mutableStateOf(true)

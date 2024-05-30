@@ -67,7 +67,6 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 
-
     //viewmodel
     implementation(libs.androidx.lifecycle.viewmodel.compose)
 
@@ -82,5 +81,8 @@ dependencies {
 
     //coil
     implementation(libs.coil.compose)
+
+    //navigation
+    implementation(libs.androidx.navigation.compose)
 
 }
