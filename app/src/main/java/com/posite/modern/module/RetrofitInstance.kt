@@ -2,7 +2,7 @@ package com.posite.modern.module
 
 import com.posite.modern.ModernApplication.Companion.getString
 import com.posite.modern.R
-import com.posite.modern.data.service.MealService
+import com.posite.modern.data.service.meal.MealService
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import okhttp3.OkHttpClient

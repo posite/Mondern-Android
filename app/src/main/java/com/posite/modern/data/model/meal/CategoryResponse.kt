@@ -1,4 +1,4 @@
-package com.posite.modern.data.model
+package com.posite.modern.data.model.meal
 
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass

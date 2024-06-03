@@ -86,4 +86,8 @@ dependencies {
     //navigation
     implementation(libs.androidx.navigation.compose)
 
+    //google map
+    implementation(libs.location)
+    implementation(libs.map)
+
 }

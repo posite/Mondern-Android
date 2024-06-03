@@ -4,8 +4,8 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.posite.modern.data.model.Category
-import com.posite.modern.data.repository.MealRepository
+import com.posite.modern.data.model.meal.Category
+import com.posite.modern.data.repository.meal.MealRepository
 import com.posite.modern.module.RetrofitInstance
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

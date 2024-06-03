@@ -38,7 +38,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
-import com.posite.modern.data.model.Category
+import com.posite.modern.data.model.meal.Category
 
 class MealActivity : ComponentActivity() {
     private val viewModel: MealViewModel by viewModels<MealViewModelImpl>()
