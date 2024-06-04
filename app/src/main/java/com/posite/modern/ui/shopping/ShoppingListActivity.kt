@@ -1,9 +1,16 @@
 package com.posite.modern.ui.shopping
 
+import android.Manifest
+import android.content.Context
 import android.os.Bundle
+import android.util.Log
+import android.widget.Toast
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.viewModels
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Indication
 import androidx.compose.foundation.IndicationInstance
@@ -30,16 +37,18 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.State
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -48,36 +57,113 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.app.ActivityCompat
+import androidx.navigation.NavController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.dialog
+import androidx.navigation.compose.rememberNavController
 import com.posite.modern.ui.theme.ModernTheme
+import com.posite.modern.util.LocationUtil
+import com.posite.modern.util.PermissionUtil
 
 class ShoppingListActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        val viewModel by viewModels<ShoppingViewModelImpl>()
         setContent {
             ModernTheme {
-                ShoppingList()
+                ShoppingNavigation(viewModel)
             }
         }
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ShoppingList() {
+fun ShoppingNavigation(viewModel: ShoppingViewModel) {
+    val navController = rememberNavController()
+    val selectLocation = viewModel.locationButtonSelect.value
+    var count = 0
+    NavHost(navController = navController, startDestination = "shoppinglist") {
+        composable("shoppinglist") {
+            ShoppingList(
+                viewModel,
+                LocationUtil(LocalContext.current),
+                navController,
+                LocalContext.current,
+                viewModel.address.value.firstOrNull()?.formatted_address ?: "No Address"
+            )
+        }
+        dialog("LocationScreen") { backStack ->
+            viewModel.location.value?.let { currentLocation->
+                FindAddressScreen(currentLocation, onLocationSelected = { location ->
+                    viewModel.fetchAddress("${location.latitude},${location.longitude}")
+                    viewModel.locationButtonSelect()
+                    navController.popBackStack()
+                })
+            }
+        }
+    }
+
+    ShoppingList(
+        viewModel,
+        LocationUtil(LocalContext.current),
+        navController,
+        LocalContext.current,
+        ""
+    )
+}
+
+@Composable
+fun ShoppingList(
+    viewModel: ShoppingViewModel,
+    util: LocationUtil,
+    navController: NavController,
+    context: Context,
+    address: String
+) {
     var shoppingItems by remember { mutableStateOf(listOf<ShoppingItem>()) }
     var showDialog by remember { mutableStateOf(false) }
     var itemName by remember { mutableStateOf("") }
     var itemQuantity by remember { mutableStateOf("") }
     var standardId by remember { mutableStateOf(0) }
+    val location = viewModel.location.value
+
+    val requestPermission =
+        rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.RequestMultiplePermissions(),
+            onResult = { permissions ->
+                if (permissions[Manifest.permission.ACCESS_FINE_LOCATION] == true && permissions[Manifest.permission.ACCESS_COARSE_LOCATION] == true) {
+                    //util.requestLocationUpdate(viewModel)
+                } else {
+                    requireLocationPermission(context)
+                }
+            })
+
     Box(
         modifier = Modifier
             .fillMaxSize()
             .padding(horizontal = 16.dp, vertical = 24.dp)
     ) {
+        if (PermissionUtil.hasLocationPermission(context)) {
+            //util.requestLocationUpdate(viewModel)
+        } else {
+            Text(text = "Requesting Location Permission")
+            SideEffect {
+                requestPermission.launch(
+                    arrayOf(
+                        Manifest.permission.ACCESS_COARSE_LOCATION,
+                        Manifest.permission.ACCESS_FINE_LOCATION
+                    )
+                )
+            }
+            Log.d("request", requestPermission.contract.toString())
+        }
         Icon(
             imageVector = Icons.Default.AddCircle,
             contentDescription = "",
@@ -133,7 +219,8 @@ fun ShoppingList() {
                                 shoppingItems = shoppingItems + ShoppingItem(
                                     id = standardId++,
                                     name = itemName,
-                                    quantity = itemQuantity.toDouble().toInt()
+                                    quantity = itemQuantity.toDouble().toInt(),
+                                    address = viewModel.address.value.firstOrNull()?.formatted_address ?: "No Address"
                                 )
                                 itemName = ""
                                 itemQuantity = ""
@@ -145,7 +232,11 @@ fun ShoppingList() {
                         Text(text = "Add")
                     }
                     Button(
-                        onClick = { showDialog = false },
+                        onClick = {
+                            itemName = ""
+                            itemQuantity = ""
+                            showDialog = false
+                        },
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00b0f0))
                     ) {
                         Text(text = "Cancel")
@@ -174,6 +265,18 @@ fun ShoppingList() {
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
 
                     )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Button(
+                        onClick = {
+                            util.requestLocationUpdate(viewModel)
+                            navController.navigate("LocationScreen") {
+                                this.launchSingleTop
+                            }
+                        },
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00b0f0))
+                    ) {
+                        Text(text = "find address")
+                    }
                 }
 
             }, containerColor = Color(0xFFeef0ff)
@@ -200,16 +303,23 @@ fun ShoppingListItems(
         /*verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween*/
     ) {
-        Row(modifier = Modifier.align(alignment = Alignment.CenterStart)) {
-            Text(text = shoppingItem.name)
-            Spacer(modifier = Modifier.width(16.dp))
-            Text(text = shoppingItem.quantity.toString())
+        Column {
+            Row {
+                Text(text = shoppingItem.name)
+                Spacer(modifier = Modifier.width(16.dp))
+                Text(text = shoppingItem.quantity.toString())
+            }
+            Spacer(modifier = Modifier.height(4.dp))
+            Row {
+                Icon(imageVector = Icons.Default.LocationOn, contentDescription = "")
+                Text(text = shoppingItem.address)
+            }
         }
         Row(modifier = Modifier.align(alignment = Alignment.CenterEnd)) {
             IconButton(onClick = onEditClick) {
                 Icon(imageVector = Icons.Default.Edit, contentDescription = "")
             }
-            Spacer(modifier = Modifier.width(8.dp))
+            //Spacer(modifier = Modifier.width(4.dp))
             IconButton(onClick = onDeleteClick) {
                 Icon(imageVector = Icons.Default.Delete, contentDescription = "")
             }
@@ -286,10 +396,34 @@ object CustomIndication : Indication {
     }
 }
 
+fun requireLocationPermission(context: Context) {
+    val requestPermission =
+        ActivityCompat.shouldShowRequestPermissionRationale(
+            context as ShoppingListActivity,
+            Manifest.permission.ACCESS_FINE_LOCATION
+        ) || ActivityCompat.shouldShowRequestPermissionRationale(
+            context,
+            Manifest.permission.ACCESS_COARSE_LOCATION
+        )
+    if (requestPermission) {
+        Toast.makeText(context, "Location Permission Required", Toast.LENGTH_SHORT).show()
+    } else {
+
+    }
+}
+
+
 @Preview(showBackground = true)
 @Composable
 fun ShoppingListPreview() {
     ModernTheme {
-        ShoppingList()
+        val navController = rememberNavController()
+        ShoppingList(
+            ShoppingViewModelImpl(),
+            LocationUtil(LocalContext.current),
+            navController,
+            LocalContext.current,
+            ""
+        )
     }
 }

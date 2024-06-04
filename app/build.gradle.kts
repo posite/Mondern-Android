@@ -89,5 +89,6 @@ dependencies {
     //google map
     implementation(libs.location)
     implementation(libs.map)
+    implementation(libs.compose.map)
 
 }

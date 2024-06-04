@@ -12,6 +12,7 @@ import com.google.android.gms.location.Priority
 import com.google.android.gms.maps.model.LatLng
 import com.posite.modern.data.model.location.Location
 import com.posite.modern.ui.location.LocationViewModel
+import com.posite.modern.ui.shopping.ShoppingViewModel
 import java.util.Locale
 
 class LocationUtil(context: Context) {
@@ -21,6 +22,26 @@ class LocationUtil(context: Context) {
 
     @Suppress("MissingPermission")
     fun requestLocationUpdate(viewModel: LocationViewModel) {
+        val locationCallback = object : LocationCallback() {
+            override fun onLocationResult(locationResult: com.google.android.gms.location.LocationResult) {
+                super.onLocationResult(locationResult)
+                locationResult.lastLocation?.let {
+                    viewModel.updateLocation(Location(it.latitude, it.longitude))
+                }
+            }
+        }
+
+        val locationRequest = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 1000).build()
+
+        _fusedLocationClient.requestLocationUpdates(
+            locationRequest,
+            locationCallback,
+            Looper.getMainLooper()
+        )
+    }
+
+    @Suppress("MissingPermission")
+    fun requestLocationUpdate(viewModel: ShoppingViewModel) {
         val locationCallback = object : LocationCallback() {
             override fun onLocationResult(locationResult: com.google.android.gms.location.LocationResult) {
                 super.onLocationResult(locationResult)
