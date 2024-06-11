@@ -1,7 +1,7 @@
 package com.posite.modern.ui.meal
 
 import androidx.compose.runtime.State
-import com.posite.modern.data.model.meal.Category
+import com.posite.modern.data.remote.model.meal.Category
 import kotlinx.coroutines.flow.StateFlow
 
 interface MealViewModel {

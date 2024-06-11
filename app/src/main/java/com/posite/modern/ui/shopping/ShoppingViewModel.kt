@@ -1,8 +1,8 @@
 package com.posite.modern.ui.shopping
 
 import androidx.compose.runtime.State
-import com.posite.modern.data.model.location.Location
-import com.posite.modern.data.model.shopping.GeocodingResult
+import com.posite.modern.data.remote.model.location.Location
+import com.posite.modern.data.remote.model.shopping.GeocodingResult
 import kotlinx.coroutines.flow.SharedFlow
 
 interface ShoppingViewModel {

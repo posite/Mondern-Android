@@ -10,7 +10,7 @@ import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 import com.google.android.gms.maps.model.LatLng
-import com.posite.modern.data.model.location.Location
+import com.posite.modern.data.remote.model.location.Location
 import com.posite.modern.ui.location.LocationViewModel
 import com.posite.modern.ui.shopping.ShoppingViewModel
 import java.util.Locale

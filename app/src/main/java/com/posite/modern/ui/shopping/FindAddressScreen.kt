@@ -21,7 +21,7 @@ import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
-import com.posite.modern.data.model.location.Location
+import com.posite.modern.data.remote.model.location.Location
 
 @Composable
 fun FindAddressScreen(location: Location, onLocationSelected: (Location) -> Unit) {

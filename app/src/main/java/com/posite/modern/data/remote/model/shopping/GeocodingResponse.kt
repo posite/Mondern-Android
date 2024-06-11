@@ -1,4 +1,4 @@
-package com.posite.modern.data.model.shopping
+package com.posite.modern.data.remote.model.shopping
 
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass

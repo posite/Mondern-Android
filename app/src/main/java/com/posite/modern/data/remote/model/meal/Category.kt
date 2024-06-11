@@ -1,4 +1,4 @@
-package com.posite.modern.data.model.meal
+package com.posite.modern.data.remote.model.meal
 
 import android.os.Parcelable
 import com.squareup.moshi.Json

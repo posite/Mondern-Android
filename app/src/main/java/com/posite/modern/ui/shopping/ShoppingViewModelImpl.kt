@@ -7,8 +7,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.posite.modern.ModernApplication.Companion.getString
 import com.posite.modern.R
-import com.posite.modern.data.model.location.Location
-import com.posite.modern.data.model.shopping.GeocodingResult
+import com.posite.modern.data.remote.model.location.Location
+import com.posite.modern.data.remote.model.shopping.GeocodingResult
 import com.posite.modern.data.repository.shopping.ShoppingRepository
 import com.posite.modern.module.RetrofitInstance
 import kotlinx.coroutines.launch

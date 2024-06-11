@@ -1,6 +1,6 @@
-package com.posite.modern.data.service.shopping
+package com.posite.modern.data.remote.service.shopping
 
-import com.posite.modern.data.model.shopping.GeocodingResponse
+import com.posite.modern.data.remote.model.shopping.GeocodingResponse
 import retrofit2.http.GET
 import retrofit2.http.Query
 
