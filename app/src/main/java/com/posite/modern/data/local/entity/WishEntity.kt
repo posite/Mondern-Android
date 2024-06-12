@@ -15,7 +15,11 @@ data class WishEntity(
     val title: String,
     val description: String,
     val date: Date
-) : Parcelable
+) : Parcelable {
+    companion object {
+        fun getEmpty() = WishEntity(0L, "", "", Date())
+    }
+}
 
 class DateConverter {
     @TypeConverter

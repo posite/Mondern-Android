@@ -4,7 +4,9 @@ import android.annotation.SuppressLint
 import android.app.Application
 import android.content.Context
 import androidx.annotation.StringRes
+import dagger.hilt.android.HiltAndroidApp
 
+@HiltAndroidApp
 class ModernApplication : Application() {
     override fun onCreate() {
         super<Application>.onCreate()

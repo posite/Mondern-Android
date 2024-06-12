@@ -15,10 +15,10 @@ interface WishDao {
     suspend fun addWish(wish: WishEntity)
 
     @Query("SELECT * FROM  wish_table")
-    suspend fun getWishes(): Flow<List<WishEntity>>
+    fun getAllWishes(): Flow<List<WishEntity>>
 
     @Query("SELECT * FROM wish_table WHERE id = :id")
-    suspend fun getWishById(id: Long): Flow<WishEntity>
+    fun getWishById(id: Long): Flow<WishEntity>
 
     @Update
     suspend fun updateWish(wish: WishEntity)

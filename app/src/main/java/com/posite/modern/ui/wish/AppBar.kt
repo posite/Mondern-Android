@@ -22,7 +22,7 @@ fun AppBarView(title: String, onBackClicked: () -> Unit = {}) {
         title = { Text(text = title, modifier = Modifier.padding(start = 8.dp)) },
         colors = TopAppBarDefaults.topAppBarColors(containerColor = colorResource(id = R.color.sky_blue)),
         navigationIcon = {
-            if (title.contains("WishList").not()) {
+            if (title.contains("Wish List").not()) {
                 IconButton(
                     modifier = Modifier.padding(start = 12.dp),
                     onClick = { onBackClicked() }
