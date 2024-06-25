@@ -1,6 +1,5 @@
 package com.posite.modern.ui.music
 
-import androidx.compose.material3.DrawerState
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -10,12 +9,30 @@ import androidx.navigation.compose.composable
 fun MusicNavigation(
     viewModel: MusicViewModel,
     navController: NavHostController,
-    drawerState: DrawerState
 ) {
-    NavHost(navController = navController, startDestination = MusicScreen.Home.route) {
-        composable(MusicScreen.Home.route) {
-            MusicHomeScreen(viewModel, navController, drawerState)
+    NavHost(
+        navController = navController,
+        startDestination = MusicScreen.MusicDrawerScreens.Home.route
+    ) {
+        composable(MusicScreen.MusicDrawerScreens.Home.route) {
+            MusicHomeView(viewModel, navController)
         }
+        composable(MusicScreen.MusicBottomScreen.Home.route) {
+            MusicHomeView(viewModel, navController)
+        }
+        composable(MusicScreen.MusicBottomScreen.Browse.route) {
+            MusicBrowseView(viewModel, navController)
+        }
+        composable(MusicScreen.MusicBottomScreen.Library.route) {
+            MusicLibraryView(viewModel, navController)
+        }
+        composable(MusicScreen.MusicDrawerScreens.Account.route) {
+            MusicAccountView(viewModel, navController)
+        }
+        composable(MusicScreen.MusicDrawerScreens.Subscription.route) {
+            MusicSubscriptionView(viewModel, navController)
+        }
+
         /*composable(
             WishScreen.AddWish.route + "/{id}",
             arguments = listOf(navArgument("id") {

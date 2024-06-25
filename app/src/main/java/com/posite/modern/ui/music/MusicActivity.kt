@@ -17,7 +17,7 @@ class MusicActivity : ComponentActivity() {
         setContent {
             ModernTheme {
                 val viewModel: MusicViewModel by viewModels<MusicViewModelImpl>()
-                MusicNavigation(
+                MusicView(
                     viewModel,
                     rememberNavController(),
                     rememberDrawerState(initialValue = DrawerValue.Closed)

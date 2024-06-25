@@ -8,11 +8,21 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MusicViewModelImpl @Inject constructor() : ViewModel(), MusicViewModel {
-    private val _title = mutableStateOf("")
-    override val title: State<String>
-        get() = _title
+    private val _currentDrawerScreen =
+        mutableStateOf<MusicScreen.MusicDrawerScreens>(MusicScreen.MusicDrawerScreens.Home)
+    override val currentDrawerScreen: State<MusicScreen.MusicDrawerScreens>
+        get() = _currentDrawerScreen
 
-    override fun onDrawerItemClicked(title: String) {
-        _title.value = title
+    private val _currentBottomScreen =
+        mutableStateOf<MusicScreen.MusicBottomScreen>(MusicScreen.MusicBottomScreen.Home)
+    override val currentBottomScreen: State<MusicScreen.MusicBottomScreen>
+        get() = _currentBottomScreen
+
+    override fun onDrawerItemClicked(screen: MusicScreen.MusicDrawerScreens) {
+        _currentDrawerScreen.value = screen
+    }
+
+    override fun onBottomBarClicked(screen: MusicScreen.MusicBottomScreen) {
+        _currentBottomScreen.value = screen
     }
 }
