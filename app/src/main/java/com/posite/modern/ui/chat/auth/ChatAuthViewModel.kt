@@ -1,4 +1,4 @@
-package com.posite.modern.ui.chat
+package com.posite.modern.ui.chat.auth
 
 import androidx.compose.runtime.State
 import com.posite.modern.util.DataResult

@@ -1,4 +1,4 @@
-package com.posite.modern.ui.chat
+package com.posite.modern.ui.chat.auth
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -9,7 +9,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -19,23 +19,23 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.posite.modern.R
+import com.posite.modern.util.DataResult
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SignUpScreen(
+fun LoginScreen(
     viewModel: ChatAuthViewModel,
-    onNavigationToLogin: () -> Unit
+    onNavigationToSignUp: () -> Unit,
+    onLoginSuccess: () -> Unit
 ) {
-
     var email by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
-    var firstName by remember { mutableStateOf("") }
-    var lastName by remember { mutableStateOf("") }
-
+    var password by remember {
+        mutableStateOf("")
+    }
+    val result by viewModel.authResult
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -60,46 +60,28 @@ fun SignUpScreen(
                 .padding(8.dp),
             visualTransformation = PasswordVisualTransformation()
         )
-        OutlinedTextField(
-            value = firstName,
-            onValueChange = { firstName = it },
-            label = { Text("First Name") },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(8.dp)
-        )
-        OutlinedTextField(
-            value = lastName,
-            onValueChange = { lastName = it },
-            label = { Text("Last Name") },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(8.dp)
-        )
         Button(
             onClick = {
-                viewModel.signUp(email, password, firstName, lastName)
-                email = ""
-                password = ""
-                firstName = ""
-                lastName = ""
+                viewModel.login(email, password)
+                if (result is DataResult.Success) {
+                    onLoginSuccess()
+                }
             },
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(8.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = colorResource(id = R.color.sky_blue))
+                .padding(8.dp)
         ) {
-            Text("Sign Up")
+            Text("Login")
         }
         Spacer(modifier = Modifier.height(16.dp))
-        Text("Already have an account? Sign in.",
-            modifier = Modifier.clickable { onNavigationToLogin() }
+        Text("Don't have an account? Sign up.",
+            modifier = Modifier.clickable { onNavigationToSignUp() }
         )
     }
 }
 
 @Preview(showBackground = true)
 @Composable
-fun SignupPreview() {
-    //SignUpScreen()
+fun LoginPreview() {
+    //LoginScreen()
 }

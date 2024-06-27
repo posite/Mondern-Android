@@ -1,4 +1,4 @@
-package com.posite.modern.ui.chat
+package com.posite.modern.ui.chat.auth
 
 import android.util.Log
 import androidx.compose.runtime.State
@@ -20,6 +20,7 @@ class ChatAuthViewModelImpl @Inject constructor(private val chatRepository: Chat
     private val _authResult = mutableStateOf<DataResult<Boolean>>(DataResult.Loading())
     override val authResult: State<DataResult<Boolean>>
         get() = _authResult
+
 
     override fun signUp(email: String, password: String, firstName: String, lastName: String) {
         viewModelScope.launch {
