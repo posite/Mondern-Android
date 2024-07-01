@@ -1,8 +1,6 @@
 package com.posite.modern.ui.chat.auth
 
 import android.util.Log
-import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.posite.modern.data.repository.chat.ChatRepository
@@ -11,14 +9,16 @@ import com.posite.modern.util.onError
 import com.posite.modern.util.onFail
 import com.posite.modern.util.onSuccess
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class ChatAuthViewModelImpl @Inject constructor(private val chatRepository: ChatRepository) :
     ChatAuthViewModel, ViewModel() {
-    private val _authResult = mutableStateOf<DataResult<Boolean>>(DataResult.Loading())
-    override val authResult: State<DataResult<Boolean>>
+    private val _authResult = MutableSharedFlow<DataResult<Boolean>>()
+    override val authResult: SharedFlow<DataResult<Boolean>>
         get() = _authResult
 
 
@@ -26,15 +26,15 @@ class ChatAuthViewModelImpl @Inject constructor(private val chatRepository: Chat
         viewModelScope.launch {
             chatRepository.signUp(email, password, firstName, lastName)
                 .onSuccess {
-                    _authResult.value = DataResult.Success(it)
+                    login(email, password)
                     Log.d("ChatAuthViewModelImpl", "signUp: Success")
                 }
                 .onFail {
-                    _authResult.value = DataResult.Fail(it, "Failed to sign up")
+                    _authResult.emit(DataResult.Fail(it, "Failed to sign up"))
                     Log.d("ChatAuthViewModelImpl", "signUp: Fail")
                 }
                 .onError {
-                    _authResult.value = DataResult.Error(it)
+                    _authResult.emit(DataResult.Error(it))
                     Log.d("ChatAuthViewModelImpl", "signUp: Error ${it.message}")
                 }
         }
@@ -42,7 +42,19 @@ class ChatAuthViewModelImpl @Inject constructor(private val chatRepository: Chat
 
     override fun login(email: String, password: String) {
         viewModelScope.launch {
-            _authResult.value = chatRepository.login(email, password)
+            chatRepository.login(email, password)
+                .onSuccess {
+                    _authResult.emit(DataResult.Success(true))
+                    Log.d("ChatAuthViewModelImpl", "login: Success")
+                }
+                .onFail {
+                    _authResult.emit(DataResult.Fail(it, "Failed to login"))
+                    Log.d("ChatAuthViewModelImpl", "login: Fail")
+                }
+                .onError {
+                    _authResult.emit(DataResult.Error(it))
+                    Log.d("ChatAuthViewModelImpl", "login: Error ${it.message}")
+                }
         }
     }
 }

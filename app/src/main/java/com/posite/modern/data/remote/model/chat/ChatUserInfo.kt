@@ -1,7 +1,9 @@
 package com.posite.modern.data.remote.model.chat
 
-data class UserInfo(
+data class ChatUserInfo(
     val firstName: String,
     val lastName: String,
     val email: String,
-)
+) {
+    constructor() : this("", "", "")
+}

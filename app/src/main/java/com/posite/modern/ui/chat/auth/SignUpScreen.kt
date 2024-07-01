@@ -1,5 +1,6 @@
 package com.posite.modern.ui.chat.auth
 
+import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -13,18 +14,24 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.posite.modern.R
-import com.posite.modern.util.DataResult
+import com.posite.modern.util.onError
+import com.posite.modern.util.onException
+import com.posite.modern.util.onFail
+import com.posite.modern.util.onSuccess
 
 @Composable
 fun SignUpScreen(
@@ -32,12 +39,37 @@ fun SignUpScreen(
     onNavigationToLogin: () -> Unit,
     onSignUpSuccess: () -> Unit
 ) {
-
+    val context = LocalContext.current
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var firstName by remember { mutableStateOf("") }
     var lastName by remember { mutableStateOf("") }
-
+    val result = viewModel.authResult.collectAsState(initial = false)
+    LaunchedEffect(key1 = 123) {
+        viewModel.authResult.collect {
+            it.onSuccess {
+                onSignUpSuccess()
+            }.onError {
+                Toast.makeText(
+                    context,
+                    "Failed to login: ${it.message}",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }.onFail {
+                Toast.makeText(
+                    context,
+                    "Failed to login: $it",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }.onException {
+                Toast.makeText(
+                    context,
+                    "Failed to login: ${it.message}",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
+    }
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -85,9 +117,6 @@ fun SignUpScreen(
                 password = ""
                 firstName = ""
                 lastName = ""
-                if (viewModel.authResult.value is DataResult.Success) {
-                    onSignUpSuccess()
-                }
             },
             modifier = Modifier
                 .fillMaxWidth()

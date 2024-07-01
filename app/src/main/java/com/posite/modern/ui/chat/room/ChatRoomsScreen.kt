@@ -1,6 +1,7 @@
 package com.posite.modern.ui.chat.room
 
 import android.util.Log
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -13,7 +14,9 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
-import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonColors
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -22,14 +25,17 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.posite.modern.R
 import com.posite.modern.data.remote.model.chat.ChatRoom
 
 @Composable
-fun ChatRoomScreen(viewModel: ChatRoomViewModel) {
+fun ChatRoomsScreen(viewModel: ChatRoomViewModel, onJoinClicked: (ChatRoom) -> Unit) {
     var showDialog by remember { mutableStateOf(false) }
     var name by remember { mutableStateOf("") }
     val rooms = viewModel.rooms.collectAsState()
@@ -78,13 +84,15 @@ fun ChatRoomScreen(viewModel: ChatRoomViewModel) {
                 })
         }
 
-        Text("Chat Rooms", fontSize = 20.sp, fontWeight = FontWeight.Bold)
+        Text("Chat Rooms", fontSize = 24.sp, fontWeight = FontWeight.Bold)
         Spacer(modifier = Modifier.height(16.dp))
 
         // Display a list of chat rooms
         LazyColumn {
             items(rooms.value) { room ->
-                RoomItem(room = room)
+                RoomItem(room = room) {
+                    onJoinClicked(it)
+                }
             }
         }
 
@@ -103,18 +111,31 @@ fun ChatRoomScreen(viewModel: ChatRoomViewModel) {
 }
 
 @Composable
-fun RoomItem(room: ChatRoom) {
+fun RoomItem(room: ChatRoom, onJoinClicked: (ChatRoom) -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(8.dp),
-        horizontalArrangement = Arrangement.SpaceBetween
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(text = room.name, fontSize = 16.sp, fontWeight = FontWeight.Normal)
-        OutlinedButton(
-            onClick = { }
+        Text(text = room.name, fontSize = 20.sp)
+        IconButton(
+            onClick = { onJoinClicked(room) },
+            modifier = Modifier
+                .background(
+                    shape = ButtonDefaults.shape,
+                    color = colorResource(id = R.color.purple_500)
+                )
+                .padding(horizontal = 8.dp),
+            colors = IconButtonColors(
+                containerColor = colorResource(id = R.color.purple_500),
+                disabledContentColor = colorResource(id = R.color.white),
+                contentColor = colorResource(id = R.color.white),
+                disabledContainerColor = colorResource(id = R.color.purple_500)
+            )
         ) {
-            Text("Join")
+            Text(text = "Join")
         }
     }
 }
