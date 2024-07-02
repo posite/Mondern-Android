@@ -15,18 +15,21 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.posite.modern.ui.theme.ModernTheme
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class CounterActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            val viewModel: CounterViewModel by viewModels<CounterViewModelImpl>()
+            val viewModel: CounterContractViewModel by viewModels<CounterContractViewModel>()
             ModernTheme {
                 Counter(viewModel)
             }
@@ -35,13 +38,14 @@ class CounterActivity : ComponentActivity() {
 }
 
 @Composable
-fun Counter(viewModel: CounterViewModel) {
+fun Counter(viewModel: CounterContractViewModel) {
+    val uiState = viewModel.uiState.collectAsState()
     Column(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(text = "Counter: ${viewModel.count.value}")
+        Text(text = "Counter: ${uiState.value.count.number}")
         Spacer(modifier = Modifier.height(12.dp))
         Row {
             Button(onClick = { viewModel.increment() }) {
@@ -59,7 +63,7 @@ fun Counter(viewModel: CounterViewModel) {
 @Composable
 fun CounterPreview() {
     ModernTheme {
-        val viewModel: CounterViewModel = CounterViewModelImpl()
+        val viewModel: CounterContractViewModel = CounterContractViewModel()
         Counter(viewModel)
     }
 }
