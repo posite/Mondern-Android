@@ -1,5 +1,7 @@
 package com.posite.modern.ui.wish
 
+import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -15,29 +17,39 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.posite.modern.R
-import com.posite.modern.data.local.entity.WishEntity
 import kotlinx.coroutines.launch
-import java.util.Date
 
 @Composable
-fun UpdateWishScreen(id: Long, viewModel: WishViewModel, navController: NavController) {
+fun UpdateWishScreen(id: Long, viewModel: WishContractViewModel, navController: NavController) {
     val snackBarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
     if (id != 0L) {
-        viewModel.getWishById(id)
-        viewModel.wishTitleChanged(viewModel.currentWish.value.title)
-        viewModel.wishDescriptionChanged(viewModel.currentWish.value.description)
+        viewModel.getSingleWish(id)
+    }
+    val wish = viewModel.uiState.collectAsState()
+    val context = LocalContext.current
+    LaunchedEffect(viewModel.effect) {
+        viewModel.effect.collect {
+            when (it) {
+                is WishContract.Effect.ShowWishBlankToast -> {
+                    Toast.makeText(context, "Title or Description is empty", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
     }
     Scaffold(
         topBar = { AppBarView(title = if (id != 0L) "Update Wish" else "Add Wish") { navController.navigateUp() } },
@@ -54,25 +66,21 @@ fun UpdateWishScreen(id: Long, viewModel: WishViewModel, navController: NavContr
         ) {
             WishTextFields(
                 "Wish Title",
-                viewModel.wishTitle.value
+                wish.value.wish.wish.title
             ) { viewModel.wishTitleChanged(it) }
             Spacer(modifier = Modifier.height(8.dp))
             WishTextFields(
                 "Wish Description",
-                viewModel.wishDescription.value
+                wish.value.wish.wish.description
             ) { viewModel.wishDescriptionChanged(it) }
             Spacer(modifier = Modifier.height(8.dp))
             Button(
                 onClick = {
-                    if (viewModel.wishTitle.value.isNotEmpty() && viewModel.wishDescription.value.isNotEmpty()) {
+                    if (wish.value.wish.wish.title.isNotEmpty() && wish.value.wish.wish.description.isNotEmpty()) {
                         if (id == 0L) {
                             //add
                             viewModel.addWish(
-                                WishEntity(
-                                    title = viewModel.wishTitle.value,
-                                    description = viewModel.wishDescription.value,
-                                    date = Date(System.currentTimeMillis())
-                                )
+                                wish.value.wish.wish
                             )
                             scope.launch {
                                 /*snackBarHostState.showSnackbar(
@@ -84,12 +92,7 @@ fun UpdateWishScreen(id: Long, viewModel: WishViewModel, navController: NavContr
                         } else {
                             //update
                             viewModel.updateWish(
-                                WishEntity(
-                                    id = id,
-                                    title = viewModel.wishTitle.value,
-                                    description = viewModel.wishDescription.value,
-                                    date = Date(System.currentTimeMillis())
-                                )
+                                wish.value.wish.wish
                             )
                             scope.launch {
                                 /*snackBarHostState.showSnackbar(
@@ -99,6 +102,9 @@ fun UpdateWishScreen(id: Long, viewModel: WishViewModel, navController: NavContr
                                 finishEditWish(viewModel, navController)
                             }
                         }
+                    } else {
+                        Log.d("UpdateWishScreen", "Title or Description is empty")
+                        viewModel.showWishBlankToast()
                     }
                 },
                 colors = ButtonDefaults.buttonColors(containerColor = colorResource(id = R.color.sky_blue))
@@ -111,7 +117,7 @@ fun UpdateWishScreen(id: Long, viewModel: WishViewModel, navController: NavContr
 }
 
 private fun finishEditWish(
-    viewModel: WishViewModel,
+    viewModel: WishContractViewModel,
     navController: NavController
 ) {
     viewModel.wishTitleChanged("")

@@ -29,6 +29,7 @@ import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -44,9 +45,10 @@ import com.posite.modern.data.local.entity.WishEntity
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun WishListScreen(viewModel: WishViewModel, navController: NavController) {
+fun WishListScreen(viewModel: WishContractViewModel, navController: NavController) {
     val context = LocalContext.current
     viewModel.getWishes()
+    val wishes = viewModel.uiState.collectAsState()
     Scaffold(
         topBar = {
             AppBarView("Wish List") {
@@ -74,11 +76,13 @@ fun WishListScreen(viewModel: WishViewModel, navController: NavController) {
                     bottom = it.calculateBottomPadding()
                 )
         ) {
-            items(viewModel.wishes.value, key = { wish -> wish.id }) { wish ->
+            items(wishes.value.wishList.wishList, key = { wish -> wish.id }) { wish ->
                 val dismissState = rememberSwipeToDismissBoxState(
                     confirmValueChange = { dismissValue ->
                         if (dismissValue == SwipeToDismissBoxValue.EndToStart) {
                             viewModel.deleteWish(wish)
+                        } else {
+                            false
                         }
                         true
                     }
@@ -101,7 +105,7 @@ fun WishListScreen(viewModel: WishViewModel, navController: NavController) {
                             tint = Color.White
                         )
                     }
-                }) {
+                }, enableDismissFromStartToEnd = false) {
                     WishItem(wish) {
                         navController.navigate(WishScreen.AddWish.route + "/${wish.id}")
                     }

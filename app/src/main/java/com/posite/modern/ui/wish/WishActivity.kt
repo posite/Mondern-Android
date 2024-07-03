@@ -14,7 +14,7 @@ class WishActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             ModernTheme {
-                val viewModel: WishViewModel by viewModels<WishViewModelImpl>()
+                val viewModel: WishContractViewModel by viewModels<WishContractViewModel>()
                 WishNavigation(viewModel, rememberNavController())
             }
         }

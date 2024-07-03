@@ -8,7 +8,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 
 @Composable
-fun WishNavigation(viewModel: WishViewModel, navController: NavHostController) {
+fun WishNavigation(viewModel: WishContractViewModel, navController: NavHostController) {
     NavHost(navController = navController, startDestination = WishScreen.WishList.route) {
         composable(WishScreen.WishList.route) {
             WishListScreen(viewModel, navController)
