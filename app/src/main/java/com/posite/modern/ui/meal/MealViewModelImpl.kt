@@ -6,13 +6,16 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.posite.modern.data.remote.model.meal.Category
 import com.posite.modern.data.repository.meal.MealRepository
-import com.posite.modern.module.RetrofitInstance
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class MealViewModelImpl : ViewModel(), MealViewModel {
-    private val repository: MealRepository = MealRepository(RetrofitInstance.mealService)
+@HiltViewModel
+class MealViewModelImpl @Inject constructor(private val repository: MealRepository) : ViewModel(),
+    MealViewModel {
+
     private val _categories = MutableStateFlow(emptyList<Category>())
     override val categories: StateFlow<List<Category>>
         get() = _categories
@@ -24,9 +27,9 @@ class MealViewModelImpl : ViewModel(), MealViewModel {
     override suspend fun getCategories() {
         viewModelScope.launch {
             try {
-                val response = repository.getCategories()
-                _categories.value = response.categories
-                _isLoding.value = false
+                repository.getCategories().collect {
+                    _categories.value = it.categories
+                }
             } catch (e: Exception) {
                 _isLoding.value = false
                 e.printStackTrace()

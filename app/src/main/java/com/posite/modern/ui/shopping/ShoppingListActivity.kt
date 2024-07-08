@@ -48,7 +48,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.State
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -100,7 +99,7 @@ fun ShoppingNavigation(viewModel: ShoppingViewModel) {
             )
         }
         dialog("LocationScreen") { backStack ->
-            viewModel.location.value?.let { currentLocation->
+            viewModel.location.value?.let { currentLocation ->
                 FindAddressScreen(currentLocation, onLocationSelected = { location ->
                     viewModel.fetchAddress("${location.latitude},${location.longitude}")
                     viewModel.locationButtonSelect()
@@ -220,7 +219,8 @@ fun ShoppingList(
                                     id = standardId++,
                                     name = itemName,
                                     quantity = itemQuantity.toDouble().toInt(),
-                                    address = viewModel.address.value.firstOrNull()?.formatted_address ?: "No Address"
+                                    address = viewModel.address.value.firstOrNull()?.formatted_address
+                                        ?: "No Address"
                                 )
                                 itemName = ""
                                 itemQuantity = ""
@@ -416,7 +416,7 @@ fun requireLocationPermission(context: Context) {
 @Preview(showBackground = true)
 @Composable
 fun ShoppingListPreview() {
-    ModernTheme {
+    /*ModernTheme {
         val navController = rememberNavController()
         ShoppingList(
             ShoppingViewModelImpl(),
@@ -425,5 +425,5 @@ fun ShoppingListPreview() {
             LocalContext.current,
             ""
         )
-    }
+    }*/
 }

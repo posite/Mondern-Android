@@ -2,6 +2,7 @@ package com.posite.modern.ui.meal
 
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -22,7 +23,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -39,9 +39,11 @@ import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.posite.modern.data.remote.model.meal.Category
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MealActivity : ComponentActivity() {
-    private val viewModel: MealViewModel by viewModels<MealViewModelImpl>()
+    private val viewModel: MealContractViewModelImpl by viewModels<MealContractViewModelImpl>()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -52,7 +54,7 @@ class MealActivity : ComponentActivity() {
 }
 
 @Composable
-fun MealScreen(viewModel: MealViewModel, navController: NavHostController) {
+fun MealScreen(viewModel: MealContractViewModelImpl, navController: NavHostController) {
     NavHost(navController = navController, startDestination = MealScreen.MealCategories.route) {
         composable(MealScreen.MealCategories.route) {
             MealCategories(viewModel) {
@@ -73,32 +75,43 @@ fun MealScreen(viewModel: MealViewModel, navController: NavHostController) {
 
 
 @Composable
-fun MealCategories(viewModel: MealViewModel, navigateToDetail: (Category) -> Unit) {
+fun MealCategories(viewModel: MealContractViewModelImpl, navigateToDetail: (Category) -> Unit) {
+    val context = LocalContext.current
     Box(
         modifier = Modifier
             .fillMaxSize()
             .padding(horizontal = 16.dp, vertical = 24.dp)
     ) {
-        LaunchedEffect(Unit) {
-            viewModel.getCategories()
-        }
-        val categories by viewModel.categories.collectAsState()
+
+        val state by viewModel.uiState.collectAsState()
         //이미지들이 한번에 로드되는 것 처럼 보이려면 isLoading 으로 확인 필요
-        when (viewModel.isLoding.value) {
-            true -> {
+        when (state.loadState) {
+            is MealContract.MealListState.Loading -> {
                 CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
             }
 
-            false -> {
+            is MealContract.MealListState.Success -> {
                 LazyVerticalGrid(
                     columns = GridCells.Fixed(2),
                     modifier = Modifier
                         .fillMaxSize()
                 ) {
-                    items(categories) {
+                    items(state.categories.categories) {
                         MealCategory(it, navigateToDetail)
                     }
                 }
+            }
+
+            is MealContract.MealListState.Before -> {
+                viewModel.getCategories()
+            }
+
+            else -> {
+                Toast.makeText(
+                    context,
+                    (state.loadState as MealContract.MealListState.Error).message,
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         }
 

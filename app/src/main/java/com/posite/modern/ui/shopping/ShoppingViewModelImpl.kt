@@ -11,10 +11,12 @@ import com.posite.modern.data.remote.model.location.Location
 import com.posite.modern.data.remote.model.shopping.GeocodingResult
 import com.posite.modern.data.repository.shopping.ShoppingRepository
 import com.posite.modern.module.RetrofitInstance
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class ShoppingViewModelImpl : ViewModel(), ShoppingViewModel {
-    private val repository: ShoppingRepository = ShoppingRepository(RetrofitInstance.mapService)
+@HiltViewModel
+class ShoppingViewModelImpl @Inject constructor(private val repository: ShoppingRepository) : ViewModel(), ShoppingViewModel {
     private val _location = mutableStateOf<Location?>(null)
     override val location: State<Location?>
         get() = _location
