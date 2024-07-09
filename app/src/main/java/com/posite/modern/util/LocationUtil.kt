@@ -12,6 +12,7 @@ import com.google.android.gms.location.Priority
 import com.google.android.gms.maps.model.LatLng
 import com.posite.modern.data.remote.model.location.Location
 import com.posite.modern.ui.location.LocationViewModel
+import com.posite.modern.ui.shopping.ShoppingContractViewModel
 import com.posite.modern.ui.shopping.ShoppingViewModel
 import java.util.Locale
 
@@ -41,7 +42,7 @@ class LocationUtil(context: Context) {
     }
 
     @Suppress("MissingPermission")
-    fun requestLocationUpdate(viewModel: ShoppingViewModel) {
+    fun requestLocationUpdate(viewModel: ShoppingContractViewModel) {
         val locationCallback = object : LocationCallback() {
             override fun onLocationResult(locationResult: com.google.android.gms.location.LocationResult) {
                 super.onLocationResult(locationResult)

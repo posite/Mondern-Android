@@ -1,23 +1,27 @@
 package com.posite.modern.ui.shopping
 
+import com.posite.modern.data.remote.model.location.Location
+import com.posite.modern.data.remote.model.shopping.GeocodingResult
 import com.posite.modern.ui.base.UiEffect
 import com.posite.modern.ui.base.UiEvent
 import com.posite.modern.ui.base.UiState
 
 class ShoppingContract {
     sealed class Event : UiEvent {
-        object IncrementButtonClicked : Event()
-        object DecrementButtonClicked : Event()
+        data class FetchAddress(val latlng: String) : Event()
     }
 
-    sealed class CounterNumberState(val number: Int) {
-        data class Change(val cNumber: Int) : CounterNumberState(cNumber)
+    sealed class ShoppingListState {
+        data class ShoppingLocation(val location: Location) : ShoppingListState()
+        data class ChooseLocation(val location: List<GeocodingResult>) : ShoppingListState()
     }
 
     sealed class Effect : UiEffect {
-        object IncrementEffect : Effect()
-        object DecrementEffect : Effect()
+        object FetchAddressError : Effect()
     }
 
-    data class State(val count: CounterNumberState) : UiState
+    data class State(
+        val shoppingLocation: ShoppingListState.ShoppingLocation? = null,
+        val locationText: ShoppingListState.ChooseLocation
+    ) : UiState
 }

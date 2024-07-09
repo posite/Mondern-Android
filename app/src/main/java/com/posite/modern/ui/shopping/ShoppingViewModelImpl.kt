@@ -10,13 +10,13 @@ import com.posite.modern.R
 import com.posite.modern.data.remote.model.location.Location
 import com.posite.modern.data.remote.model.shopping.GeocodingResult
 import com.posite.modern.data.repository.shopping.ShoppingRepository
-import com.posite.modern.module.RetrofitInstance
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class ShoppingViewModelImpl @Inject constructor(private val repository: ShoppingRepository) : ViewModel(), ShoppingViewModel {
+class ShoppingViewModelImpl @Inject constructor(private val repository: ShoppingRepository) :
+    ViewModel(), ShoppingViewModel {
     private val _location = mutableStateOf<Location?>(null)
     override val location: State<Location?>
         get() = _location
@@ -25,9 +25,6 @@ class ShoppingViewModelImpl @Inject constructor(private val repository: Shopping
     override val address: State<List<GeocodingResult>>
         get() = _address
 
-    private val _locationButtonSelect = mutableStateOf(false)
-    override val locationButtonSelect: State<Boolean>
-        get() = _locationButtonSelect
 
     override fun updateLocation(location: Location) {
         _location.value = location
@@ -48,9 +45,5 @@ class ShoppingViewModelImpl @Inject constructor(private val repository: Shopping
         } catch (e: Exception) {
             Log.d("address", "${e.cause} ${e.message}")
         }
-    }
-
-    override fun locationButtonSelect() {
-        _locationButtonSelect.value = _locationButtonSelect.value.not()
     }
 }

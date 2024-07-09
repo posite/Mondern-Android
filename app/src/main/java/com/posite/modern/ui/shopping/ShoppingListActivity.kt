@@ -46,8 +46,10 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.State
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -69,12 +71,14 @@ import androidx.navigation.compose.rememberNavController
 import com.posite.modern.ui.theme.ModernTheme
 import com.posite.modern.util.LocationUtil
 import com.posite.modern.util.PermissionUtil
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class ShoppingListActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        val viewModel by viewModels<ShoppingViewModelImpl>()
+        val viewModel by viewModels<ShoppingContractViewModel>()
         setContent {
             ModernTheme {
                 ShoppingNavigation(viewModel)
@@ -84,25 +88,36 @@ class ShoppingListActivity : ComponentActivity() {
 }
 
 @Composable
-fun ShoppingNavigation(viewModel: ShoppingViewModel) {
+fun ShoppingNavigation(viewModel: ShoppingContractViewModel) {
     val navController = rememberNavController()
-    val selectLocation = viewModel.locationButtonSelect.value
-    var count = 0
+    val uiState = viewModel.uiState.collectAsState()
+    val context = LocalContext.current
+    LaunchedEffect(key1 = viewModel) {
+        viewModel.effect.collect {
+            when (it) {
+                is ShoppingContract.Effect.FetchAddressError -> {
+                    Toast.makeText(
+                        context,
+                        "Error Fetching Address",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+        }
+    }
     NavHost(navController = navController, startDestination = "shoppinglist") {
         composable("shoppinglist") {
             ShoppingList(
                 viewModel,
-                LocationUtil(LocalContext.current),
+                LocationUtil(context),
                 navController,
-                LocalContext.current,
-                viewModel.address.value.firstOrNull()?.formatted_address ?: "No Address"
+                context,
             )
         }
         dialog("LocationScreen") { backStack ->
-            viewModel.location.value?.let { currentLocation ->
-                FindAddressScreen(currentLocation, onLocationSelected = { location ->
+            uiState.value.shoppingLocation?.let { currentLocation ->
+                FindAddressScreen(currentLocation.location, onLocationSelected = { location ->
                     viewModel.fetchAddress("${location.latitude},${location.longitude}")
-                    viewModel.locationButtonSelect()
                     navController.popBackStack()
                 })
             }
@@ -113,25 +128,23 @@ fun ShoppingNavigation(viewModel: ShoppingViewModel) {
         viewModel,
         LocationUtil(LocalContext.current),
         navController,
-        LocalContext.current,
-        ""
+        LocalContext.current
     )
 }
 
 @Composable
 fun ShoppingList(
-    viewModel: ShoppingViewModel,
+    viewModel: ShoppingContractViewModel,
     util: LocationUtil,
     navController: NavController,
-    context: Context,
-    address: String
+    context: Context
 ) {
     var shoppingItems by remember { mutableStateOf(listOf<ShoppingItem>()) }
     var showDialog by remember { mutableStateOf(false) }
     var itemName by remember { mutableStateOf("") }
     var itemQuantity by remember { mutableStateOf("") }
     var standardId by remember { mutableStateOf(0) }
-    val location = viewModel.location.value
+    val uiState = viewModel.uiState.collectAsState()
 
     val requestPermission =
         rememberLauncherForActivityResult(
@@ -215,11 +228,16 @@ fun ShoppingList(
                     Button(
                         onClick = {
                             if (itemName.isNotEmpty() && itemQuantity.isNotEmpty()) {
+                                Log.d(
+                                    "address",
+                                    uiState.value.locationText.location.firstOrNull()?.formatted_address
+                                        ?: "No Address"
+                                )
                                 shoppingItems = shoppingItems + ShoppingItem(
                                     id = standardId++,
                                     name = itemName,
                                     quantity = itemQuantity.toDouble().toInt(),
-                                    address = viewModel.address.value.firstOrNull()?.formatted_address
+                                    address = uiState.value.locationText.location.firstOrNull()?.formatted_address
                                         ?: "No Address"
                                 )
                                 itemName = ""
@@ -277,6 +295,12 @@ fun ShoppingList(
                     ) {
                         Text(text = "find address")
                     }
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Text(
+                        text = uiState.value.locationText.location.firstOrNull()?.formatted_address
+                            ?: "No Address Found"
+                    )
                 }
 
             }, containerColor = Color(0xFFeef0ff)
