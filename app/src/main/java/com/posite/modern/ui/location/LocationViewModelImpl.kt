@@ -10,7 +10,7 @@ class LocationViewModelImpl : ViewModel(), LocationViewModel {
     override val location: State<Location?>
         get() = _location
 
-    override fun updateLocation(location: Location) {
+    override fun updateLocation(location: Location?) {
         _location.value = location
     }
 }

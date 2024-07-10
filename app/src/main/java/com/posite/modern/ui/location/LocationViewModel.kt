@@ -6,5 +6,5 @@ import com.posite.modern.data.remote.model.location.Location
 interface LocationViewModel {
     val location: State<Location?>
 
-    fun updateLocation(location: Location)
+    fun updateLocation(location: Location?)
 }

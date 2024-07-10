@@ -1,9 +1,10 @@
 package com.posite.modern.util
 
 import android.content.Context
-import android.location.Address
 import android.location.Geocoder
+import android.os.Build
 import android.os.Looper
+import androidx.annotation.RequiresApi
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
@@ -11,9 +12,8 @@ import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 import com.google.android.gms.maps.model.LatLng
 import com.posite.modern.data.remote.model.location.Location
-import com.posite.modern.ui.location.LocationViewModel
+import com.posite.modern.ui.location.LocationContractViewModel
 import com.posite.modern.ui.shopping.ShoppingContractViewModel
-import com.posite.modern.ui.shopping.ShoppingViewModel
 import java.util.Locale
 
 class LocationUtil(context: Context) {
@@ -22,13 +22,13 @@ class LocationUtil(context: Context) {
     }
 
     @Suppress("MissingPermission")
-    fun requestLocationUpdate(viewModel: LocationViewModel) {
+    fun requestLocationUpdate(viewModel: LocationContractViewModel) {
         val locationCallback = object : LocationCallback() {
             override fun onLocationResult(locationResult: com.google.android.gms.location.LocationResult) {
                 super.onLocationResult(locationResult)
                 locationResult.lastLocation?.let {
                     viewModel.updateLocation(Location(it.latitude, it.longitude))
-                }
+                } ?: viewModel.updateLocation(null)
             }
         }
 
@@ -61,12 +61,13 @@ class LocationUtil(context: Context) {
         )
     }
 
-    fun reverseGeocodeLocation(context: Context, location: Location): String {
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+    fun reverseGeocodeLocation(context: Context, location: Location, listener: (String) -> Unit) {
         val geocoder = Geocoder(context, Locale.KOREAN)
         val coordinates = LatLng(location.latitude, location.longitude)
-        val addresses: MutableList<Address>? =
-            geocoder.getFromLocation(coordinates.latitude, coordinates.longitude, 1)
-
-        return if (addresses?.isNotEmpty() == true) return addresses[0].getAddressLine(0) else "No Address Found"
+        geocoder.getFromLocation(coordinates.latitude, coordinates.longitude, 1) {
+            listener(it[0].getAddressLine(0))
+        }
     }
+
 }

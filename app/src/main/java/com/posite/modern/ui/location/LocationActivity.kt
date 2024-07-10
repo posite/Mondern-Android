@@ -2,6 +2,7 @@ package com.posite.modern.ui.location
 
 import android.Manifest
 import android.content.Context
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
@@ -10,12 +11,15 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -26,10 +30,11 @@ import com.posite.modern.util.LocationUtil
 import com.posite.modern.util.PermissionUtil
 
 class LocationActivity : ComponentActivity() {
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            val viewModel: LocationViewModel by viewModels<LocationViewModelImpl>()
+            val viewModel: LocationContractViewModel by viewModels<LocationContractViewModel>()
             ModernTheme {
                 LocationScreen(LocalContext.current, viewModel, LocationUtil(LocalContext.current))
             }
@@ -37,10 +42,22 @@ class LocationActivity : ComponentActivity() {
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @Composable
-fun LocationScreen(context: Context, viewModel: LocationViewModel, util: LocationUtil) {
-    val location = viewModel.location.value
-    val address = location?.let { util.reverseGeocodeLocation(context, it) }
+fun LocationScreen(context: Context, viewModel: LocationContractViewModel, util: LocationUtil) {
+    val uiState = viewModel.uiState.collectAsState()
+    var location = uiState.value.locationState
+    var address = ""
+
+    LaunchedEffect(key1 = viewModel) {
+        viewModel.effect.collect {
+            when (it) {
+                is LocationContract.Effect.ShowError -> {
+                    Toast.makeText(context, "Error", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    }
     val requestPermission =
         rememberLauncherForActivityResult(
             contract = ActivityResultContracts.RequestMultiplePermissions(),
@@ -59,9 +76,12 @@ fun LocationScreen(context: Context, viewModel: LocationViewModel, util: Locatio
         if (PermissionUtil.hasLocationPermission(context)) {
             Text("Location Permission Granted")
             util.requestLocationUpdate(viewModel)
-            if (location != null) {
-                Text("Latitude: ${location.latitude}")
-                Text("Longitude: ${location.longitude}")
+            if (location is LocationContract.LocationState.Success) {
+                util.reverseGeocodeLocation(context, location.location) { reverseResult ->
+                    address = reverseResult
+                }
+                Text("Latitude: ${location.location.latitude}")
+                Text("Longitude: ${location.location.longitude}")
                 Text("Address: $address")
             }
         } else {
