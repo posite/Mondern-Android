@@ -44,7 +44,7 @@ class MealContractViewModelImpl @Inject constructor(private val repository: Meal
     }
 
     fun getCategories() {
-        handleEvent(MealContract.Event.GetCategories)
+        setEvent(MealContract.Event.GetCategories)
     }
 
 }
