@@ -80,7 +80,6 @@ fun MealCategories(viewModel: MealContractViewModelImpl, navigateToDetail: (Cate
             .fillMaxSize()
             .padding(horizontal = 16.dp, vertical = 24.dp)
     ) {
-
         val state = viewModel.currentState
         //이미지들이 한번에 로드되는 것 처럼 보이려면 isLoading 으로 확인 필요
         when (state.loadState) {
@@ -89,6 +88,7 @@ fun MealCategories(viewModel: MealContractViewModelImpl, navigateToDetail: (Cate
             }
 
             is MealContract.MealListState.Success -> {
+                Log.d("MealCategories", "Success")
                 LazyVerticalGrid(
                     columns = GridCells.Fixed(2),
                     modifier = Modifier
@@ -102,6 +102,7 @@ fun MealCategories(viewModel: MealContractViewModelImpl, navigateToDetail: (Cate
 
             is MealContract.MealListState.Before -> {
                 viewModel.getCategories()
+                Log.d("MealCategories", "Before")
             }
 
             else -> {
