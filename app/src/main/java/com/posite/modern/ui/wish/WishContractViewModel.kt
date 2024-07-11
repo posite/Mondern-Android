@@ -1,5 +1,6 @@
 package com.posite.modern.ui.wish
 
+import android.util.Log
 import androidx.lifecycle.viewModelScope
 import com.posite.modern.data.local.entity.WishEntity
 import com.posite.modern.data.repository.wish.WishRepository
@@ -51,6 +52,7 @@ class WishContractViewModel @Inject constructor(private val repository: WishRepo
                 }
 
                 is WishContract.Event.GetSingleWish -> {
+                    //Log.d("WishContractViewModel", "${event.id}")
                     repository.getWishById(event.id).collect {
                         setState {
                             copy(wish = WishContract.WishList.SingleWish(it))
@@ -60,13 +62,13 @@ class WishContractViewModel @Inject constructor(private val repository: WishRepo
 
                 is WishContract.Event.WishDescriptionChanged -> {
                     setState {
-                        copy(wish = WishContract.WishList.SingleWish(wish.wish.copy(description = event.description)))
+                        copy(wish = currentState.wish.copy(wish.wish.copy(description = event.description)))
                     }
                 }
 
                 is WishContract.Event.WishTitleChanged -> {
                     setState {
-                        copy(wish = WishContract.WishList.SingleWish(wish.wish.copy(title = event.title)))
+                        copy(wish = currentState.wish.copy(wish.wish.copy(title = event.title)))
                     }
                 }
 
@@ -78,8 +80,15 @@ class WishContractViewModel @Inject constructor(private val repository: WishRepo
                     }
                 }
 
-                WishContract.Event.ShowWishBlankToast -> {
+                is WishContract.Event.ShowWishBlankToast -> {
                     setEffect { WishContract.Effect.ShowWishBlankToast }
+                }
+
+                is WishContract.Event.ClearWish -> {
+                    setState {
+                        copy(wish = WishContract.WishList.SingleWish(WishEntity.getEmpty()))
+                    }
+                    Log.d("WishContractViewModel", "${currentState.wish.wish}")
                 }
             }
         }
@@ -115,5 +124,9 @@ class WishContractViewModel @Inject constructor(private val repository: WishRepo
 
     fun showWishBlankToast() {
         setEvent(WishContract.Event.ShowWishBlankToast)
+    }
+
+    fun clearWish() {
+        setEvent(WishContract.Event.ClearWish)
     }
 }

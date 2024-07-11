@@ -36,10 +36,16 @@ import kotlinx.coroutines.launch
 fun UpdateWishScreen(id: Long, viewModel: WishContractViewModel, navController: NavController) {
     val snackBarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
-    if (id != 0L) {
-        viewModel.getSingleWish(id)
-    }
     val wish = viewModel.currentState
+    Log.d("wish id", id.toString())
+    LaunchedEffect(key1 = id) {
+        if (id != 0L) {
+            viewModel.getSingleWish(id)
+        } else {
+            viewModel.clearWish()
+        }
+    }
+    Log.d("wish wish", wish.wish.wish.toString())
     val context = LocalContext.current
     LaunchedEffect(viewModel.effect) {
         viewModel.effect.collect {
@@ -52,7 +58,12 @@ fun UpdateWishScreen(id: Long, viewModel: WishContractViewModel, navController: 
         }
     }
     Scaffold(
-        topBar = { AppBarView(title = if (id != 0L) "Update Wish" else "Add Wish") { navController.navigateUp() } },
+        topBar = {
+            AppBarView(title = if (id != 0L) "Update Wish" else "Add Wish") {
+                viewModel.clearWish()
+                navController.navigateUp()
+            }
+        },
         modifier = Modifier.fillMaxSize(),
         snackbarHost = { SnackbarHost(snackBarHostState) }
     ) { paddingValue ->
@@ -76,6 +87,7 @@ fun UpdateWishScreen(id: Long, viewModel: WishContractViewModel, navController: 
             Spacer(modifier = Modifier.height(8.dp))
             Button(
                 onClick = {
+                    Log.d("UpdateWishScreen", "id: $id, wish: ${wish.wish.wish}")
                     if (wish.wish.wish.title.isNotEmpty() && wish.wish.wish.description.isNotEmpty()) {
                         if (id == 0L) {
                             //add
@@ -87,7 +99,6 @@ fun UpdateWishScreen(id: Long, viewModel: WishContractViewModel, navController: 
                                     message = "Wish has been added!",
                                     duration = SnackbarDuration.Short
                                 )*/
-                                finishEditWish(viewModel, navController)
                             }
                         } else {
                             //update
@@ -99,9 +110,10 @@ fun UpdateWishScreen(id: Long, viewModel: WishContractViewModel, navController: 
                                     message = "Wish has been updated!",
                                     duration = SnackbarDuration.Short
                                 )*/
-                                finishEditWish(viewModel, navController)
                             }
                         }
+                        viewModel.clearWish()
+                        navController.navigateUp()
                     } else {
                         Log.d("UpdateWishScreen", "Title or Description is empty")
                         viewModel.showWishBlankToast()
@@ -114,15 +126,6 @@ fun UpdateWishScreen(id: Long, viewModel: WishContractViewModel, navController: 
 
         }
     }
-}
-
-private fun finishEditWish(
-    viewModel: WishContractViewModel,
-    navController: NavController
-) {
-    viewModel.wishTitleChanged("")
-    viewModel.wishDescriptionChanged("")
-    navController.navigateUp()
 }
 
 

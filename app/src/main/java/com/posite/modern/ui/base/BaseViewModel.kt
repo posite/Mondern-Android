@@ -1,6 +1,7 @@
 package com.posite.modern.ui.base
 
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -18,10 +19,10 @@ abstract class BaseViewModel<Event : UiEvent, State : UiState, Effect : UiEffect
         get() = uiState.value
 
     private val _uiState: MutableState<State> = mutableStateOf(initialState)
-    val uiState = _uiState
+    private val uiState: androidx.compose.runtime.State<State> = _uiState
 
     private val _event: MutableSharedFlow<Event> = MutableSharedFlow()
-    val event = _event.asSharedFlow()
+    private val event = _event.asSharedFlow()
 
     private val _effect: Channel<Effect> = Channel()
     val effect = _effect.receiveAsFlow()

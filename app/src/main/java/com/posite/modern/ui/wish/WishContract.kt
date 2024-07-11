@@ -15,6 +15,7 @@ class WishContract {
         data class WishTitleChanged(val title: String) : Event()
         object ShowWishBlankToast : Event()
         data class WishDescriptionChanged(val description: String) : Event()
+        object ClearWish : Event()
     }
 
     sealed class WishList {
