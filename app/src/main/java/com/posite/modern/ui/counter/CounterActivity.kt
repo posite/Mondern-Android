@@ -15,7 +15,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
@@ -39,13 +38,13 @@ class CounterActivity : ComponentActivity() {
 
 @Composable
 fun Counter(viewModel: CounterContractViewModel) {
-    val uiState = viewModel.uiState.collectAsState()
+    val uiState = viewModel.currentState
     Column(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(text = "Counter: ${uiState.value.count.number}")
+        Text(text = "Counter: ${uiState.count.number}")
         Spacer(modifier = Modifier.height(12.dp))
         Row {
             Button(onClick = { viewModel.increment() }) {

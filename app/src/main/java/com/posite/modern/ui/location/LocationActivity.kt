@@ -19,7 +19,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -45,8 +44,8 @@ class LocationActivity : ComponentActivity() {
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @Composable
 fun LocationScreen(context: Context, viewModel: LocationContractViewModel, util: LocationUtil) {
-    val uiState = viewModel.uiState.collectAsState()
-    var location = uiState.value.locationState
+    val uiState = viewModel.currentState
+    var location = uiState.locationState
     var address = ""
 
     LaunchedEffect(key1 = viewModel) {

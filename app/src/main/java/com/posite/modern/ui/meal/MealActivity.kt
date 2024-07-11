@@ -23,8 +23,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -83,7 +81,7 @@ fun MealCategories(viewModel: MealContractViewModelImpl, navigateToDetail: (Cate
             .padding(horizontal = 16.dp, vertical = 24.dp)
     ) {
 
-        val state by viewModel.uiState.collectAsState()
+        val state = viewModel.currentState
         //이미지들이 한번에 로드되는 것 처럼 보이려면 isLoading 으로 확인 필요
         when (state.loadState) {
             is MealContract.MealListState.Loading -> {

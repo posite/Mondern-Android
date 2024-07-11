@@ -29,7 +29,6 @@ import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -48,7 +47,7 @@ import com.posite.modern.data.local.entity.WishEntity
 fun WishListScreen(viewModel: WishContractViewModel, navController: NavController) {
     val context = LocalContext.current
     viewModel.getWishes()
-    val wishes = viewModel.uiState.collectAsState()
+    val wishes = viewModel.currentState
     Scaffold(
         topBar = {
             AppBarView("Wish List") {
@@ -76,7 +75,7 @@ fun WishListScreen(viewModel: WishContractViewModel, navController: NavControlle
                     bottom = it.calculateBottomPadding()
                 )
         ) {
-            items(wishes.value.wishList.wishList, key = { wish -> wish.id }) { wish ->
+            items(wishes.wishList.wishList, key = { wish -> wish.id }) { wish ->
                 val dismissState = rememberSwipeToDismissBoxState(
                     confirmValueChange = { dismissValue ->
                         if (dismissValue == SwipeToDismissBoxValue.EndToStart) {

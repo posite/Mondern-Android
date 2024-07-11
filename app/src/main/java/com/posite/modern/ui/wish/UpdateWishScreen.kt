@@ -18,7 +18,6 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -40,13 +39,14 @@ fun UpdateWishScreen(id: Long, viewModel: WishContractViewModel, navController: 
     if (id != 0L) {
         viewModel.getSingleWish(id)
     }
-    val wish = viewModel.uiState.collectAsState()
+    val wish = viewModel.currentState
     val context = LocalContext.current
     LaunchedEffect(viewModel.effect) {
         viewModel.effect.collect {
             when (it) {
                 is WishContract.Effect.ShowWishBlankToast -> {
-                    Toast.makeText(context, "Title or Description is empty", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, "Title or Description is empty", Toast.LENGTH_SHORT)
+                        .show()
                 }
             }
         }
@@ -66,21 +66,21 @@ fun UpdateWishScreen(id: Long, viewModel: WishContractViewModel, navController: 
         ) {
             WishTextFields(
                 "Wish Title",
-                wish.value.wish.wish.title
+                wish.wish.wish.title
             ) { viewModel.wishTitleChanged(it) }
             Spacer(modifier = Modifier.height(8.dp))
             WishTextFields(
                 "Wish Description",
-                wish.value.wish.wish.description
+                wish.wish.wish.description
             ) { viewModel.wishDescriptionChanged(it) }
             Spacer(modifier = Modifier.height(8.dp))
             Button(
                 onClick = {
-                    if (wish.value.wish.wish.title.isNotEmpty() && wish.value.wish.wish.description.isNotEmpty()) {
+                    if (wish.wish.wish.title.isNotEmpty() && wish.wish.wish.description.isNotEmpty()) {
                         if (id == 0L) {
                             //add
                             viewModel.addWish(
-                                wish.value.wish.wish
+                                wish.wish.wish
                             )
                             scope.launch {
                                 /*snackBarHostState.showSnackbar(
@@ -92,7 +92,7 @@ fun UpdateWishScreen(id: Long, viewModel: WishContractViewModel, navController: 
                         } else {
                             //update
                             viewModel.updateWish(
-                                wish.value.wish.wish
+                                wish.wish.wish
                             )
                             scope.launch {
                                 /*snackBarHostState.showSnackbar(

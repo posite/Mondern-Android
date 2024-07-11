@@ -49,7 +49,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.State
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -90,7 +89,7 @@ class ShoppingListActivity : ComponentActivity() {
 @Composable
 fun ShoppingNavigation(viewModel: ShoppingContractViewModel) {
     val navController = rememberNavController()
-    val uiState = viewModel.uiState.collectAsState()
+    val uiState = viewModel.currentState
     val context = LocalContext.current
     LaunchedEffect(key1 = viewModel) {
         viewModel.effect.collect {
@@ -115,7 +114,7 @@ fun ShoppingNavigation(viewModel: ShoppingContractViewModel) {
             )
         }
         dialog("LocationScreen") { backStack ->
-            uiState.value.shoppingLocation?.let { currentLocation ->
+            uiState.shoppingLocation?.let { currentLocation ->
                 FindAddressScreen(currentLocation.location, onLocationSelected = { location ->
                     viewModel.fetchAddress("${location.latitude},${location.longitude}")
                     navController.popBackStack()
@@ -144,7 +143,7 @@ fun ShoppingList(
     var itemName by remember { mutableStateOf("") }
     var itemQuantity by remember { mutableStateOf("") }
     var standardId by remember { mutableStateOf(0) }
-    val uiState = viewModel.uiState.collectAsState()
+    val uiState = viewModel.currentState
 
     val requestPermission =
         rememberLauncherForActivityResult(
@@ -230,14 +229,14 @@ fun ShoppingList(
                             if (itemName.isNotEmpty() && itemQuantity.isNotEmpty()) {
                                 Log.d(
                                     "address",
-                                    uiState.value.locationText.location.firstOrNull()?.formatted_address
+                                    uiState.locationText.location.firstOrNull()?.formatted_address
                                         ?: "No Address"
                                 )
                                 shoppingItems = shoppingItems + ShoppingItem(
                                     id = standardId++,
                                     name = itemName,
                                     quantity = itemQuantity.toDouble().toInt(),
-                                    address = uiState.value.locationText.location.firstOrNull()?.formatted_address
+                                    address = uiState.locationText.location.firstOrNull()?.formatted_address
                                         ?: "No Address"
                                 )
                                 itemName = ""
@@ -298,7 +297,7 @@ fun ShoppingList(
                     Spacer(modifier = Modifier.height(8.dp))
 
                     Text(
-                        text = uiState.value.locationText.location.firstOrNull()?.formatted_address
+                        text = uiState.locationText.location.firstOrNull()?.formatted_address
                             ?: "No Address Found"
                     )
                 }
