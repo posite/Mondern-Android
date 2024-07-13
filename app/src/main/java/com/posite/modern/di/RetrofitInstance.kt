@@ -1,4 +1,4 @@
-package com.posite.modern.module
+package com.posite.modern.di
 
 import com.posite.modern.ModernApplication.Companion.getString
 import com.posite.modern.R

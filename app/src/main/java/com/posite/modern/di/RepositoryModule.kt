@@ -1,4 +1,4 @@
-package com.posite.modern.module
+package com.posite.modern.di
 
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
