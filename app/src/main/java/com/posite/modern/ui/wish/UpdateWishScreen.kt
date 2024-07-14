@@ -36,7 +36,6 @@ import kotlinx.coroutines.launch
 fun UpdateWishScreen(id: Long, viewModel: WishContractViewModel, navController: NavController) {
     val snackBarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
-    val wish = viewModel.currentState
     Log.d("wish id", id.toString())
     LaunchedEffect(key1 = id) {
         if (id != 0L) {
@@ -45,6 +44,7 @@ fun UpdateWishScreen(id: Long, viewModel: WishContractViewModel, navController: 
             viewModel.clearWish()
         }
     }
+    val wish = viewModel.currentState
     Log.d("wish wish", wish.wish.wish.toString())
     val context = LocalContext.current
     LaunchedEffect(viewModel.effect) {

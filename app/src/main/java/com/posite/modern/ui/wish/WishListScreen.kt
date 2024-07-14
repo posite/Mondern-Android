@@ -72,7 +72,7 @@ fun WishListScreen(viewModel: WishContractViewModel, navController: NavControlle
                     start = 12.dp,
                     end = 12.dp,
                     top = it.calculateTopPadding(),
-                    bottom = it.calculateBottomPadding()
+                    bottom = it.calculateBottomPadding() + 16.dp
                 )
         ) {
             items(wishes.wishList.wishList, key = { wish -> wish.id }) { wish ->
