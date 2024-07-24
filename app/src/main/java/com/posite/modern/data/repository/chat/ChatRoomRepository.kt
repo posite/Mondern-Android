@@ -26,4 +26,12 @@ class ChatRoomRepository @Inject constructor(private val firestore: FirebaseFire
         Log.d("ChatRoomRepository", "loadRooms: Error ${e.message}")
         DataResult.Error(e)
     }
+
+    suspend fun getRoom(roomId: String): DataResult<ChatRoom> = try {
+        val documentSnapshot = firestore.collection("rooms").document(roomId).get().await()
+        val room = documentSnapshot.toObject(ChatRoom::class.java)!!.copy(id = documentSnapshot.id)
+        DataResult.Success(room)
+    } catch (e: Exception) {
+        DataResult.Error(e)
+    }
 }

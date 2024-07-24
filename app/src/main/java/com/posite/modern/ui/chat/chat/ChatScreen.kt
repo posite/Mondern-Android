@@ -11,18 +11,23 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -32,11 +37,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.posite.modern.R
 import com.posite.modern.data.remote.model.chat.ChatMessage
+import kotlinx.coroutines.launch
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChatScreen(roomId: String, viewModel: ChatViewModel) {
     val chatMessages = viewModel.chatMessage.collectAsState()
@@ -44,61 +51,78 @@ fun ChatScreen(roomId: String, viewModel: ChatViewModel) {
         viewModel.loadCurrentUser()
         viewModel.setRoomId(roomId)
         viewModel.loadMessages()
+        viewModel.getRoom(roomId)
     }
     val text = remember { mutableStateOf("") }
+    val room = viewModel.room.collectAsState()
     val userId = viewModel.currentUser.collectAsState()
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
-    ) {
-        // Display the chat messages
-        LazyColumn(
-            modifier = Modifier.weight(1f)
-        ) {
-            items(chatMessages.value) {
-                ChatMessageItem(message = it, userId.value.email)
-            }
-        }
+    val lazyColumnState = rememberLazyListState()
+    val coroutineScope = rememberCoroutineScope()
 
-        // Chat input field and send icon
-        Row(
+    Scaffold(modifier = Modifier
+        .fillMaxSize(), topBar = {
+        TopAppBar(title = { Text(text = room.value.name) })
+    }) { paddingValues ->
+        Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(8.dp),
-            verticalAlignment = Alignment.CenterVertically
+                .fillMaxSize()
+                .padding(paddingValues)
         ) {
-            BasicTextField(
-                value = text.value,
-                onValueChange = { text.value = it },
-                textStyle = TextStyle.Default.copy(fontSize = 16.sp),
-                modifier = Modifier
-                    .background(
-                        shape = ButtonDefaults.shape,
-                        color = colorResource(id = R.color.sky_blue)
-                    )
-                    .weight(1f)
-                    .padding(horizontal = 16.dp, vertical = 12.dp),
-            )
-
-            IconButton(
-                onClick = {
-                    // Send the message when the icon is clicked
-                    if (text.value.isNotEmpty()) {
-                        viewModel.sendMessage(
-                            ChatMessage(
-                                text = text.value,
-                                senderId = viewModel.currentUser.value.email, // Replace with actual sender ID
-                                senderFirstName = viewModel.currentUser.value.firstName, // Replace with actual sender name
-                                timestamp = Instant.now().toEpochMilli()
-                            )
-                        )
-                        text.value = ""
-                    }
-
-                }
+            // Display the chat messages
+            LazyColumn(
+                modifier = Modifier.weight(1f),
+                state = lazyColumnState
             ) {
-                Icon(imageVector = Icons.AutoMirrored.Default.Send, contentDescription = "Send")
+                items(chatMessages.value) {
+                    ChatMessageItem(message = it, userId.value.email)
+                }
+
+                coroutineScope.launch {
+                    if (chatMessages.value.isNotEmpty()) {
+                        lazyColumnState.animateScrollToItem(chatMessages.value.size - 1)
+                    }
+                }
+            }
+
+            // Chat input field and send icon
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                BasicTextField(
+                    value = text.value,
+                    onValueChange = { text.value = it },
+                    textStyle = TextStyle.Default.copy(fontSize = 16.sp),
+                    modifier = Modifier
+                        .background(
+                            shape = ButtonDefaults.shape,
+                            color = colorResource(id = R.color.sky_blue)
+                        )
+                        .weight(1f)
+                        .padding(horizontal = 16.dp, vertical = 12.dp),
+                )
+
+                IconButton(
+                    onClick = {
+                        // Send the message when the icon is clicked
+                        if (text.value.isNotEmpty()) {
+                            viewModel.sendMessage(
+                                ChatMessage(
+                                    text = text.value,
+                                    senderId = viewModel.currentUser.value.email, // Replace with actual sender ID
+                                    senderFirstName = viewModel.currentUser.value.firstName, // Replace with actual sender name
+                                    timestamp = Instant.now().toEpochMilli()
+                                )
+                            )
+                            text.value = ""
+                        }
+
+                    }
+                ) {
+                    Icon(imageVector = Icons.AutoMirrored.Default.Send, contentDescription = "Send")
+                }
             }
         }
     }
@@ -112,6 +136,14 @@ fun ChatMessageItem(message: ChatMessage, currentUserId: String) {
             .padding(8.dp),
         horizontalAlignment = if (message.senderId == currentUserId) Alignment.End else Alignment.Start
     ) {
+        Text(
+            text = message.senderFirstName,
+            style = TextStyle(
+                fontSize = 14.sp,
+                color = Color.Gray
+            )
+        )
+        Spacer(modifier = Modifier.height(4.dp))
         Box(
             modifier = Modifier
                 .background(
@@ -127,13 +159,6 @@ fun ChatMessageItem(message: ChatMessage, currentUserId: String) {
             )
         }
         Spacer(modifier = Modifier.height(4.dp))
-        Text(
-            text = message.senderFirstName,
-            style = TextStyle(
-                fontSize = 12.sp,
-                color = Color.Gray
-            )
-        )
         Text(
             text = formatTimestamp(message.timestamp), // Replace with actual timestamp logic
             style = TextStyle(
