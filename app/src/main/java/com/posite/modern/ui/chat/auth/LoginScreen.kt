@@ -14,6 +14,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -31,7 +32,7 @@ import com.posite.modern.util.onSuccess
 
 @Composable
 fun LoginScreen(
-    viewModel: ChatAuthViewModel,
+    viewModel: ChatAuthContractViewModel,
     onNavigationToSignUp: () -> Unit,
     onLoginSuccess: () -> Unit
 ) {
@@ -40,29 +41,10 @@ fun LoginScreen(
     var password by remember {
         mutableStateOf("")
     }
-    LaunchedEffect(key1 = 123) {
-        viewModel.authResult.collect {
-            it.onSuccess {
-                onLoginSuccess()
-            }.onError {
-                Toast.makeText(
-                    context,
-                    "Failed to login: ${it.message}",
-                    Toast.LENGTH_SHORT
-                ).show()
-            }.onFail {
-                Toast.makeText(
-                    context,
-                    "Failed to login: $it",
-                    Toast.LENGTH_SHORT
-                ).show()
-            }.onException {
-                Toast.makeText(
-                    context,
-                    "Failed to login: ${it.message}",
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
+    val result = viewModel.currentState.loadState
+    SideEffect {
+        if(result is ChatAuthContract.ChatAuthState.Success) {
+            onLoginSuccess()
         }
     }
 

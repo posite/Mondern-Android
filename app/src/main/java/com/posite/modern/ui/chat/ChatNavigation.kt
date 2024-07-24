@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.posite.modern.ui.chat.auth.ChatAuthContractViewModel
 import com.posite.modern.ui.chat.auth.ChatAuthViewModel
 import com.posite.modern.ui.chat.auth.LoginScreen
 import com.posite.modern.ui.chat.auth.SignUpScreen
@@ -14,7 +15,7 @@ import com.posite.modern.ui.chat.room.ChatRoomsScreen
 
 @Composable
 fun ChatNavigation(
-    chatAuthViewModel: ChatAuthViewModel,
+    chatAuthContractViewModel: ChatAuthContractViewModel,
     chatRoomViewModel: ChatRoomViewModel,
     chatViewModel: ChatViewModel,
     navController: NavHostController,
@@ -26,14 +27,14 @@ fun ChatNavigation(
     ) {
         composable(ChatScreens.SignupScreen.route) {
             SignUpScreen(
-                viewModel = chatAuthViewModel,
+                viewModel = chatAuthContractViewModel,
                 onNavigationToLogin = { navController.navigate(ChatScreens.LoginScreen.route) },
                 onSignUpSuccess = { navController.navigate(ChatScreens.ChatRoomsScreen.route) }
             )
         }
         composable(ChatScreens.LoginScreen.route) {
             LoginScreen(
-                viewModel = chatAuthViewModel,
+                viewModel = chatAuthContractViewModel,
                 onNavigationToSignUp = { navController.navigate(ChatScreens.SignupScreen.route) },
                 onLoginSuccess = { navController.navigate(ChatScreens.ChatRoomsScreen.route) }
             )

@@ -15,6 +15,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -35,7 +36,7 @@ import com.posite.modern.util.onSuccess
 
 @Composable
 fun SignUpScreen(
-    viewModel: ChatAuthViewModel,
+    viewModel: ChatAuthContractViewModel,
     onNavigationToLogin: () -> Unit,
     onSignUpSuccess: () -> Unit
 ) {
@@ -44,30 +45,10 @@ fun SignUpScreen(
     var password by remember { mutableStateOf("") }
     var firstName by remember { mutableStateOf("") }
     var lastName by remember { mutableStateOf("") }
-    val result = viewModel.authResult.collectAsState(initial = false)
-    LaunchedEffect(key1 = 123) {
-        viewModel.authResult.collect {
-            it.onSuccess {
-                onSignUpSuccess()
-            }.onError {
-                Toast.makeText(
-                    context,
-                    "Failed to login: ${it.message}",
-                    Toast.LENGTH_SHORT
-                ).show()
-            }.onFail {
-                Toast.makeText(
-                    context,
-                    "Failed to login: $it",
-                    Toast.LENGTH_SHORT
-                ).show()
-            }.onException {
-                Toast.makeText(
-                    context,
-                    "Failed to login: ${it.message}",
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
+    val result = viewModel.currentState.loadState
+    SideEffect {
+        if(result is ChatAuthContract.ChatAuthState.Success) {
+            onSignUpSuccess()
         }
     }
     Column(
@@ -112,7 +93,7 @@ fun SignUpScreen(
         )
         Button(
             onClick = {
-                viewModel.signUp(email, password, firstName, lastName)
+                viewModel.singUp(email, password, firstName, lastName)
                 email = ""
                 password = ""
                 firstName = ""

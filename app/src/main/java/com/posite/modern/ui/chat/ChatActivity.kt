@@ -7,8 +7,7 @@ import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.navigation.compose.rememberNavController
-import com.posite.modern.ui.chat.auth.ChatAuthViewModel
-import com.posite.modern.ui.chat.auth.ChatAuthViewModelImpl
+import com.posite.modern.ui.chat.auth.ChatAuthContractViewModel
 import com.posite.modern.ui.chat.chat.ChatViewModel
 import com.posite.modern.ui.chat.chat.ChatViewModelImpl
 import com.posite.modern.ui.chat.room.ChatRoomViewModel
@@ -23,13 +22,13 @@ class ChatActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            val chatAuthViewModel: ChatAuthViewModel by viewModels<ChatAuthViewModelImpl>()
+            val chatAuthViewModel: ChatAuthContractViewModel by viewModels<ChatAuthContractViewModel>()
             val chatRoomViewModel: ChatRoomViewModel by viewModels<ChatRoomViewModelImpl>()
             val chatViewModel: ChatViewModel by viewModels<ChatViewModelImpl>()
             val navHostController = rememberNavController()
             ModernTheme {
                 ChatNavigation(
-                    chatAuthViewModel = chatAuthViewModel,
+                    chatAuthContractViewModel = chatAuthViewModel,
                     chatRoomViewModel = chatRoomViewModel,
                     chatViewModel = chatViewModel,
                     navController = navHostController,
