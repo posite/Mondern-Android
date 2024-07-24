@@ -6,6 +6,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.posite.modern.ui.chat.auth.ChatAuthContractViewModel
 import com.posite.modern.ui.chat.chat.ChatViewModel
@@ -18,6 +19,7 @@ import dagger.hilt.android.AndroidEntryPoint
 @AndroidEntryPoint
 class ChatActivity : ComponentActivity() {
     private var backKeyPressedTime = 0L
+    private lateinit var navHostController: NavHostController
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -25,7 +27,7 @@ class ChatActivity : ComponentActivity() {
             val chatAuthViewModel: ChatAuthContractViewModel by viewModels<ChatAuthContractViewModel>()
             val chatRoomViewModel: ChatRoomViewModel by viewModels<ChatRoomViewModelImpl>()
             val chatViewModel: ChatViewModel by viewModels<ChatViewModelImpl>()
-            val navHostController = rememberNavController()
+            navHostController = rememberNavController()
             ModernTheme {
                 ChatNavigation(
                     chatAuthContractViewModel = chatAuthViewModel,
@@ -42,13 +44,19 @@ class ChatActivity : ComponentActivity() {
     private val onBackPressedCallback: OnBackPressedCallback =
         object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
-                if (System.currentTimeMillis() > backKeyPressedTime + 2000) {
+                if (navHostController.currentDestination?.route == ChatScreens.ChatRoomsScreen.route) {
+                    if (backKeyPressedTime + 2000 > System.currentTimeMillis()) {
+                        finish()
+                    } else {
+                        Toast.makeText(
+                            this@ChatActivity,
+                            "Press back again to exit",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
                     backKeyPressedTime = System.currentTimeMillis()
-
-                    Toast.makeText(this@ChatActivity, "뒤로 버튼을 한번 더 누르시면 종료됩니다.", Toast.LENGTH_SHORT)
-                        .show()
                 } else {
-                    finish()
+                    navHostController.navigateUp()
                 }
             }
         }

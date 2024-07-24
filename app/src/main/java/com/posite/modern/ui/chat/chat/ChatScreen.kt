@@ -15,6 +15,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -46,7 +47,7 @@ import java.time.format.DateTimeFormatter
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ChatScreen(roomId: String, viewModel: ChatViewModel) {
+fun ChatScreen(roomId: String, viewModel: ChatViewModel, onBackPressed: () -> Unit) {
     val chatMessages = viewModel.chatMessage.collectAsState()
     if (roomId.isBlank().not()) {
         viewModel.loadCurrentUser()
@@ -70,7 +71,17 @@ fun ChatScreen(roomId: String, viewModel: ChatViewModel) {
     }
     Scaffold(modifier = Modifier
         .fillMaxSize(), topBar = {
-        TopAppBar(title = { Text(text = room.value.name) })
+        TopAppBar(navigationIcon = {
+            IconButton(onClick = {
+                onBackPressed()
+            }) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = "Back"
+                )
+            }
+
+        }, title = { Text(text = room.value.name) })
     }) { paddingValues ->
         Column(
             modifier = Modifier
