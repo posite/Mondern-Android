@@ -24,6 +24,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -57,8 +58,16 @@ fun ChatScreen(roomId: String, viewModel: ChatViewModel) {
     val room = viewModel.room.collectAsState()
     val userId = viewModel.currentUser.collectAsState()
     val lazyColumnState = rememberLazyListState()
-    val coroutineScope = rememberCoroutineScope()
-
+    val scope = rememberCoroutineScope()
+    SideEffect {
+        scope.launch {
+            viewModel.chatMessage.collect {
+                if (it.isNotEmpty()) {
+                    lazyColumnState.animateScrollToItem(it.size - 1)
+                }
+            }
+        }
+    }
     Scaffold(modifier = Modifier
         .fillMaxSize(), topBar = {
         TopAppBar(title = { Text(text = room.value.name) })
@@ -75,12 +84,6 @@ fun ChatScreen(roomId: String, viewModel: ChatViewModel) {
             ) {
                 items(chatMessages.value) {
                     ChatMessageItem(message = it, userId.value.email)
-                }
-
-                coroutineScope.launch {
-                    if (chatMessages.value.isNotEmpty()) {
-                        lazyColumnState.animateScrollToItem(chatMessages.value.size - 1)
-                    }
                 }
             }
 
