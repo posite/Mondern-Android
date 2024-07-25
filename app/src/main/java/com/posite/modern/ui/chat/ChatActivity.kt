@@ -11,8 +11,7 @@ import androidx.navigation.compose.rememberNavController
 import com.posite.modern.ui.chat.auth.ChatAuthContractViewModel
 import com.posite.modern.ui.chat.chat.ChatViewModel
 import com.posite.modern.ui.chat.chat.ChatViewModelImpl
-import com.posite.modern.ui.chat.room.ChatRoomViewModel
-import com.posite.modern.ui.chat.room.ChatRoomViewModelImpl
+import com.posite.modern.ui.chat.room.ChatRoomContractViewModel
 import com.posite.modern.ui.theme.ModernTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -25,13 +24,13 @@ class ChatActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             val chatAuthViewModel: ChatAuthContractViewModel by viewModels<ChatAuthContractViewModel>()
-            val chatRoomViewModel: ChatRoomViewModel by viewModels<ChatRoomViewModelImpl>()
+            val chatRoomContractViewModel: ChatRoomContractViewModel by viewModels<ChatRoomContractViewModel>()
             val chatViewModel: ChatViewModel by viewModels<ChatViewModelImpl>()
             navHostController = rememberNavController()
             ModernTheme {
                 ChatNavigation(
                     chatAuthContractViewModel = chatAuthViewModel,
-                    chatRoomViewModel = chatRoomViewModel,
+                    chatRoomContractViewModel = chatRoomContractViewModel,
                     chatViewModel = chatViewModel,
                     navController = navHostController,
                 ) {

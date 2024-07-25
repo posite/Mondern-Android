@@ -87,6 +87,7 @@ fun ChatScreen(roomId: String, viewModel: ChatViewModel, onBackPressed: () -> Un
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
+                .padding(horizontal = 16.dp)
         ) {
             // Display the chat messages
             LazyColumn(

@@ -9,13 +9,13 @@ import com.posite.modern.ui.chat.auth.LoginScreen
 import com.posite.modern.ui.chat.auth.SignUpScreen
 import com.posite.modern.ui.chat.chat.ChatScreen
 import com.posite.modern.ui.chat.chat.ChatViewModel
-import com.posite.modern.ui.chat.room.ChatRoomViewModel
+import com.posite.modern.ui.chat.room.ChatRoomContractViewModel
 import com.posite.modern.ui.chat.room.ChatRoomsScreen
 
 @Composable
 fun ChatNavigation(
     chatAuthContractViewModel: ChatAuthContractViewModel,
-    chatRoomViewModel: ChatRoomViewModel,
+    chatRoomContractViewModel: ChatRoomContractViewModel,
     chatViewModel: ChatViewModel,
     navController: NavHostController,
     setBackPressedCallback: () -> Unit
@@ -46,7 +46,7 @@ fun ChatNavigation(
         }
         composable(ChatScreens.ChatRoomsScreen.route) {
             setBackPressedCallback()
-            ChatRoomsScreen(viewModel = chatRoomViewModel) {
+            ChatRoomsScreen(viewModel = chatRoomContractViewModel) {
                 navController.navigate("${ChatScreens.ChatScreen.route}/${it.id}")
             }
         }

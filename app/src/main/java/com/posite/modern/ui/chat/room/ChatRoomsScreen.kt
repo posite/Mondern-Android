@@ -1,6 +1,5 @@
 package com.posite.modern.ui.chat.room
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -20,7 +19,6 @@ import androidx.compose.material3.IconButtonColors
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -35,12 +33,11 @@ import com.posite.modern.R
 import com.posite.modern.data.remote.model.chat.ChatRoom
 
 @Composable
-fun ChatRoomsScreen(viewModel: ChatRoomViewModel, onJoinClicked: (ChatRoom) -> Unit) {
+fun ChatRoomsScreen(viewModel: ChatRoomContractViewModel, onJoinClicked: (ChatRoom) -> Unit) {
     var showDialog by remember { mutableStateOf(false) }
     var name by remember { mutableStateOf("") }
-    val rooms = viewModel.rooms.collectAsState()
+    val states = viewModel.currentState
     viewModel.loadRooms()
-    Log.d("rooms", rooms.value.toString())
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -89,7 +86,7 @@ fun ChatRoomsScreen(viewModel: ChatRoomViewModel, onJoinClicked: (ChatRoom) -> U
 
         // Display a list of chat rooms
         LazyColumn {
-            items(rooms.value) { room ->
+            items(states.rooms.rooms) { room ->
                 RoomItem(room = room) {
                     onJoinClicked(it)
                 }
