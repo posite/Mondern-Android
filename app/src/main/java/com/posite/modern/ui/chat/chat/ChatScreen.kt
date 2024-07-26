@@ -26,7 +26,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -47,28 +46,30 @@ import java.time.format.DateTimeFormatter
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ChatScreen(roomId: String, viewModel: ChatViewModel, onBackPressed: () -> Unit) {
-    val chatMessages = viewModel.chatMessage.collectAsState()
+fun ChatScreen(roomId: String, viewModel: ChatContractViewModel, onBackPressed: () -> Unit) {
+    val chatStates = viewModel.currentState
     if (roomId.isBlank().not()) {
         viewModel.loadCurrentUser()
-        viewModel.setRoomId(roomId)
-        viewModel.loadMessages()
         viewModel.getRoom(roomId)
     }
-    val text = remember { mutableStateOf("") }
-    val room = viewModel.room.collectAsState()
-    val userId = viewModel.currentUser.collectAsState()
+
     val lazyColumnState = rememberLazyListState()
     val scope = rememberCoroutineScope()
     SideEffect {
+        if (chatStates.room.room.id.isNotBlank() && chatStates.currentUser.currentUser.email.isNotBlank()) {
+            viewModel.loadMessages()
+        }
         scope.launch {
-            viewModel.chatMessage.collect {
-                if (it.isNotEmpty()) {
-                    lazyColumnState.animateScrollToItem(it.size - 1)
-                }
+            if (chatStates.loadState is ChatContract.ChatState.Success) {
+                lazyColumnState.animateScrollToItem(chatStates.messages.messages.size - 1)
             }
         }
     }
+
+
+    val text = remember { mutableStateOf("") }
+
+
     Scaffold(modifier = Modifier
         .fillMaxSize(), topBar = {
         TopAppBar(navigationIcon = {
@@ -81,7 +82,7 @@ fun ChatScreen(roomId: String, viewModel: ChatViewModel, onBackPressed: () -> Un
                 )
             }
 
-        }, title = { Text(text = room.value.name) })
+        }, title = { Text(text = chatStates.room.room.name) })
     }) { paddingValues ->
         Column(
             modifier = Modifier
@@ -94,8 +95,8 @@ fun ChatScreen(roomId: String, viewModel: ChatViewModel, onBackPressed: () -> Un
                 modifier = Modifier.weight(1f),
                 state = lazyColumnState
             ) {
-                items(chatMessages.value) {
-                    ChatMessageItem(message = it, userId.value.email)
+                items(chatStates.messages.messages) {
+                    ChatMessageItem(message = it, chatStates.currentUser.currentUser.email)
                 }
             }
 
@@ -126,8 +127,8 @@ fun ChatScreen(roomId: String, viewModel: ChatViewModel, onBackPressed: () -> Un
                             viewModel.sendMessage(
                                 ChatMessage(
                                     text = text.value,
-                                    senderId = viewModel.currentUser.value.email, // Replace with actual sender ID
-                                    senderFirstName = viewModel.currentUser.value.firstName, // Replace with actual sender name
+                                    senderId = chatStates.currentUser.currentUser.email, // Replace with actual sender ID
+                                    senderFirstName = chatStates.currentUser.currentUser.firstName, // Replace with actual sender name
                                     timestamp = Instant.now().toEpochMilli()
                                 )
                             )

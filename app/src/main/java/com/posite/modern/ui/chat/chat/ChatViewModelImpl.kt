@@ -28,10 +28,6 @@ class ChatViewModelImpl @Inject constructor(
     override val chatMessage: StateFlow<List<ChatMessage>>
         get() = _chatMessage
 
-    private val _roomId = MutableStateFlow("")
-    override val roomId: StateFlow<String>
-        get() = _roomId
-
     private val _room = MutableStateFlow(ChatRoom())
     override val room: StateFlow<ChatRoom>
         get() = _room
@@ -49,13 +45,9 @@ class ChatViewModelImpl @Inject constructor(
     }
 
 
-    override fun setRoomId(roomId: String) {
-        this._roomId.value = roomId
-    }
-
     override fun sendMessage(message: ChatMessage) {
         viewModelScope.launch {
-            chatMessageRepository.sendMessage(_roomId.value, message)
+            chatMessageRepository.sendMessage(_room.value.id, message)
         }
     }
 
@@ -72,13 +64,11 @@ class ChatViewModelImpl @Inject constructor(
 
     override fun loadMessages() {
         viewModelScope.launch {
-            if (_roomId.value.isBlank().not()) {
-                chatMessageRepository.getChatMessages(_roomId.value)
-                    .collect {
-                        _chatMessage.value = it
-                        Log.d("ChatViewModelImpl", "loadMessages: ${_chatMessage.value}")
-                    }
-            }
+            chatMessageRepository.getChatMessages(_room.value.id)
+                .collect {
+                    _chatMessage.value = it
+                    Log.d("ChatViewModelImpl", "loadMessages: ${_chatMessage.value}")
+                }
         }
     }
 }

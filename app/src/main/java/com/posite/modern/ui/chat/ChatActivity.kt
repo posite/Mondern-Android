@@ -9,8 +9,7 @@ import androidx.activity.viewModels
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.posite.modern.ui.chat.auth.ChatAuthContractViewModel
-import com.posite.modern.ui.chat.chat.ChatViewModel
-import com.posite.modern.ui.chat.chat.ChatViewModelImpl
+import com.posite.modern.ui.chat.chat.ChatContractViewModel
 import com.posite.modern.ui.chat.room.ChatRoomContractViewModel
 import com.posite.modern.ui.theme.ModernTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -25,13 +24,13 @@ class ChatActivity : ComponentActivity() {
         setContent {
             val chatAuthViewModel: ChatAuthContractViewModel by viewModels<ChatAuthContractViewModel>()
             val chatRoomContractViewModel: ChatRoomContractViewModel by viewModels<ChatRoomContractViewModel>()
-            val chatViewModel: ChatViewModel by viewModels<ChatViewModelImpl>()
+            val chatContractViewModel: ChatContractViewModel by viewModels<ChatContractViewModel>()
             navHostController = rememberNavController()
             ModernTheme {
                 ChatNavigation(
                     chatAuthContractViewModel = chatAuthViewModel,
                     chatRoomContractViewModel = chatRoomContractViewModel,
-                    chatViewModel = chatViewModel,
+                    chatContractViewModel = chatContractViewModel,
                     navController = navHostController,
                 ) {
                     onBackPressedDispatcher.addCallback(this, onBackPressedCallback)

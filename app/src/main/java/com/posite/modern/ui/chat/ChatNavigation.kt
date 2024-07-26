@@ -7,8 +7,8 @@ import androidx.navigation.compose.composable
 import com.posite.modern.ui.chat.auth.ChatAuthContractViewModel
 import com.posite.modern.ui.chat.auth.LoginScreen
 import com.posite.modern.ui.chat.auth.SignUpScreen
+import com.posite.modern.ui.chat.chat.ChatContractViewModel
 import com.posite.modern.ui.chat.chat.ChatScreen
-import com.posite.modern.ui.chat.chat.ChatViewModel
 import com.posite.modern.ui.chat.room.ChatRoomContractViewModel
 import com.posite.modern.ui.chat.room.ChatRoomsScreen
 
@@ -16,7 +16,7 @@ import com.posite.modern.ui.chat.room.ChatRoomsScreen
 fun ChatNavigation(
     chatAuthContractViewModel: ChatAuthContractViewModel,
     chatRoomContractViewModel: ChatRoomContractViewModel,
-    chatViewModel: ChatViewModel,
+    chatContractViewModel: ChatContractViewModel,
     navController: NavHostController,
     setBackPressedCallback: () -> Unit
 ) {
@@ -53,7 +53,7 @@ fun ChatNavigation(
         composable("${ChatScreens.ChatScreen.route}/{roomId}") { backStackEntry ->
             val roomId =
                 backStackEntry.arguments?.getString("roomId") ?: ""
-            ChatScreen(roomId = roomId, chatViewModel) {
+            ChatScreen(roomId = roomId, chatContractViewModel) {
                 navController.navigateUp()
             }
         }
