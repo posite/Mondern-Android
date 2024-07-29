@@ -72,6 +72,9 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 
+    //compose animation
+    implementation(libs.compose.animation)
+
     //viewmodel
     implementation(libs.androidx.lifecycle.viewmodel.compose)
 

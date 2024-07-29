@@ -11,7 +11,7 @@ activityCompose = "1.9.0"
 composeBom = "2024.06.00"
 lifecycleViewmodelCompose = "2.8.0"
 moshi = "1.15.1"
-navigationCompose = "2.7.7"
+navigationCompose = "2.8.0-beta05"
 okhttpVersion = "4.9.1"
 retrofit = "2.9.0"
 location = "21.2.0"
@@ -23,6 +23,8 @@ dagger-hilt = "2.51"
 hilt-navigation-compose = "1.2.0"
 googleService = "4.4.2"
 firebase = "32.6.0"
+animaiton = "1.7.0-beta05"
+
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -59,6 +61,7 @@ hilt-android-compiler = { group = "com.google.dagger", name = "hilt-android-comp
 firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebase" }
 firebase-auth = { group = "com.google.firebase", name = "firebase-auth" }
 firebase-firestore = { group = "com.google.firebase", name = "firebase-firestore" }
+compose-animation = { group = "androidx.compose.animation", name = "animation", version.ref = "animaiton" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
