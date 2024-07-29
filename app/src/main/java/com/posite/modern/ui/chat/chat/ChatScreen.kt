@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -25,7 +26,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -48,25 +49,40 @@ import java.time.format.DateTimeFormatter
 @Composable
 fun ChatScreen(roomId: String, viewModel: ChatContractViewModel, onBackPressed: () -> Unit) {
     val chatStates = viewModel.currentState
-    if (roomId.isBlank().not()) {
-        viewModel.loadCurrentUser()
-        viewModel.getRoom(roomId)
-    }
-
     val lazyColumnState = rememberLazyListState()
     val scope = rememberCoroutineScope()
-    SideEffect {
+
+    LaunchedEffect(key1 = chatStates) {
+        viewModel.loadCurrentUser()
+        viewModel.getRoom(roomId)
         if (chatStates.room.room.id.isNotBlank() && chatStates.currentUser.currentUser.email.isNotBlank()) {
             viewModel.loadMessages()
         }
         scope.launch {
-            if (chatStates.loadState is ChatContract.ChatState.Success) {
-                lazyColumnState.animateScrollToItem(chatStates.messages.messages.size - 1)
+            if (chatStates.loadState is ChatContract.ChatState.Success && chatStates.messages.messages.isNotEmpty()) {
+                lazyColumnState.scrollToItem(chatStates.messages.messages.size - 1)
             }
         }
     }
 
+    if (chatStates.room.room.id == roomId && chatStates.loadState is ChatContract.ChatState.Success) {
+        ChatContent(
+            onBackPressed = onBackPressed,
+            chatStates = chatStates,
+            lazyColumnState = lazyColumnState,
+            viewModel = viewModel
+        )
+    }
+}
 
+@Composable
+@OptIn(ExperimentalMaterial3Api::class)
+private fun ChatContent(
+    onBackPressed: () -> Unit,
+    chatStates: ChatContract.ChatStates,
+    lazyColumnState: LazyListState,
+    viewModel: ChatContractViewModel
+) {
     val text = remember { mutableStateOf("") }
 
 
@@ -137,7 +153,10 @@ fun ChatScreen(roomId: String, viewModel: ChatContractViewModel, onBackPressed: 
 
                     }
                 ) {
-                    Icon(imageVector = Icons.AutoMirrored.Default.Send, contentDescription = "Send")
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Default.Send,
+                        contentDescription = "Send"
+                    )
                 }
             }
         }

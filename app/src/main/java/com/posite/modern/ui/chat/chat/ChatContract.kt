@@ -13,6 +13,7 @@ class ChatContract {
         object LoadMessages : ChatEvent()
         data class GetRoom(val roomId: String) : ChatEvent()
         object LoadCurrentUser : ChatEvent()
+        object ClearAll : ChatEvent()
     }
 
     sealed class ChatState {

@@ -41,11 +41,11 @@ class ChatContractViewModel @Inject constructor(
 
                         }.onError {
 
-                    }.onException {
+                        }.onException {
 
-                    }.onFail {
+                        }.onFail {
 
-                    }
+                        }
                 }
 
                 is ChatContract.ChatEvent.LoadMessages -> {
@@ -78,6 +78,16 @@ class ChatContractViewModel @Inject constructor(
 
                     }
                 }
+
+                is ChatContract.ChatEvent.ClearAll -> {
+                    setState {
+                        copy(
+                            loadState = ChatContract.ChatState.Loading,
+                            room = ChatContract.ChatState.Room(ChatRoom()),
+                            messages = ChatContract.ChatState.Messages(emptyList())
+                        )
+                    }
+                }
             }
         }
 
@@ -97,5 +107,9 @@ class ChatContractViewModel @Inject constructor(
 
     fun loadMessages() {
         setEvent(ChatContract.ChatEvent.LoadMessages)
+    }
+
+    fun clearAll() {
+        setEvent(ChatContract.ChatEvent.ClearAll)
     }
 }

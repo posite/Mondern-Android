@@ -16,7 +16,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Modern"
-        tools:targetApi="31">
+        android:enableOnBackInvokedCallback="true"
+        tools:targetApi="34">
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/map_key" />

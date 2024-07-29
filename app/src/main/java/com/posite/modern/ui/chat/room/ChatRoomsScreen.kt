@@ -19,6 +19,7 @@ import androidx.compose.material3.IconButtonColors
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -36,8 +37,9 @@ import com.posite.modern.data.remote.model.chat.ChatRoom
 fun ChatRoomsScreen(viewModel: ChatRoomContractViewModel, onJoinClicked: (ChatRoom) -> Unit) {
     var showDialog by remember { mutableStateOf(false) }
     var name by remember { mutableStateOf("") }
-    val states = viewModel.currentState
-    viewModel.loadRooms()
+    LaunchedEffect(key1 = Unit) {
+        viewModel.loadRooms()
+    }
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -86,7 +88,7 @@ fun ChatRoomsScreen(viewModel: ChatRoomContractViewModel, onJoinClicked: (ChatRo
 
         // Display a list of chat rooms
         LazyColumn {
-            items(states.rooms.rooms) { room ->
+            items(viewModel.currentState.rooms.rooms) { room ->
                 RoomItem(room = room) {
                     onJoinClicked(it)
                 }
