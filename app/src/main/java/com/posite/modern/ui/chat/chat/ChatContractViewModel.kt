@@ -1,5 +1,6 @@
 package com.posite.modern.ui.chat.chat
 
+import android.util.Log
 import androidx.lifecycle.viewModelScope
 import com.posite.modern.data.remote.model.chat.ChatMessage
 import com.posite.modern.data.remote.model.chat.ChatRoom
@@ -91,7 +92,13 @@ class ChatContractViewModel @Inject constructor(
                 }
 
                 is ChatContract.ChatEvent.SetVisible -> {
+                    Log.d("ChatContractViewModel", "SetVisible")
                     setState { copy(visible = ChatContract.ChatState.Visible(true)) }
+                }
+
+                is ChatContract.ChatEvent.SetInvisible -> {
+                    Log.d("ChatContractViewModel", "SetInvisible")
+                    setState { copy(visible = ChatContract.ChatState.Visible(false)) }
                 }
             }
         }
@@ -120,5 +127,9 @@ class ChatContractViewModel @Inject constructor(
 
     fun setVisible() {
         setEvent(ChatContract.ChatEvent.SetVisible)
+    }
+
+    fun setInvisible() {
+        setEvent(ChatContract.ChatEvent.SetInvisible)
     }
 }

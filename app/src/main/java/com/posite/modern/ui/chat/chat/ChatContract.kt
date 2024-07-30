@@ -15,6 +15,7 @@ class ChatContract {
         object LoadCurrentUser : ChatEvent()
         object ClearAll : ChatEvent()
         object SetVisible : ChatEvent()
+        object SetInvisible : ChatEvent()
     }
 
     sealed class ChatState {

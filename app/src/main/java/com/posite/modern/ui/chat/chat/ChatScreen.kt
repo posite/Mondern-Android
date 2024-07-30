@@ -63,20 +63,18 @@ fun ChatScreen(roomId: String, viewModel: ChatContractViewModel, onBackPressed: 
         scope.launch {
             if (chatStates.loadState is ChatContract.ChatState.Success && chatStates.messages.messages.isNotEmpty()) {
                 lazyColumnState.scrollToItem(chatStates.messages.messages.size - 1)
-                delay(300)
+                delay(310)
                 viewModel.setVisible()
             }
         }
     }
 
-    if (chatStates.room.room.id == roomId && chatStates.visible.visibility) {
-        ChatContent(
-            onBackPressed = onBackPressed,
-            chatStates = chatStates,
-            lazyColumnState = lazyColumnState,
-            viewModel = viewModel
-        )
-    }
+    ChatContent(
+        onBackPressed = onBackPressed,
+        chatStates = chatStates,
+        lazyColumnState = lazyColumnState,
+        viewModel = viewModel
+    )
 }
 
 @Composable
@@ -93,6 +91,7 @@ private fun ChatContent(
         .fillMaxSize(), topBar = {
         TopAppBar(navigationIcon = {
             IconButton(onClick = {
+                viewModel.setInvisible()
                 onBackPressed()
             }) {
                 Icon(
@@ -110,14 +109,17 @@ private fun ChatContent(
                 .padding(horizontal = 16.dp)
         ) {
             // Display the chat messages
-            LazyColumn(
-                modifier = Modifier.weight(1f),
-                state = lazyColumnState
-            ) {
-                items(chatStates.messages.messages) {
-                    ChatMessageItem(message = it, chatStates.currentUser.currentUser.email)
+            if (chatStates.visible.visibility) {
+                LazyColumn(
+                    modifier = Modifier.weight(1f),
+                    state = lazyColumnState
+                ) {
+                    items(chatStates.messages.messages) {
+                        ChatMessageItem(message = it, chatStates.currentUser.currentUser.email)
+                    }
                 }
             }
+
 
             // Chat input field and send icon
             Row(
