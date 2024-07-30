@@ -27,6 +27,7 @@ class ChatContractViewModel @Inject constructor(
         return ChatContract.ChatStates(
             ChatContract.ChatState.Loading,
             ChatContract.ChatState.Room(ChatRoom()),
+            ChatContract.ChatState.Visible(false),
             ChatContract.ChatState.CurrentUser(ChatUserInfo()),
             ChatContract.ChatState.Messages(emptyList())
         )
@@ -53,7 +54,8 @@ class ChatContractViewModel @Inject constructor(
                         setState {
                             copy(
                                 loadState = ChatContract.ChatState.Success,
-                                messages = ChatContract.ChatState.Messages(it)
+                                messages = ChatContract.ChatState.Messages(it),
+                                visible = ChatContract.ChatState.Visible(true)
                             )
                         }
                     }
@@ -83,10 +85,13 @@ class ChatContractViewModel @Inject constructor(
                     setState {
                         copy(
                             loadState = ChatContract.ChatState.Loading,
-                            room = ChatContract.ChatState.Room(ChatRoom()),
-                            messages = ChatContract.ChatState.Messages(emptyList())
+                            visible = ChatContract.ChatState.Visible(false)
                         )
                     }
+                }
+
+                is ChatContract.ChatEvent.SetVisible -> {
+                    setState { copy(visible = ChatContract.ChatState.Visible(true)) }
                 }
             }
         }
@@ -111,5 +116,9 @@ class ChatContractViewModel @Inject constructor(
 
     fun clearAll() {
         setEvent(ChatContract.ChatEvent.ClearAll)
+    }
+
+    fun setVisible() {
+        setEvent(ChatContract.ChatEvent.SetVisible)
     }
 }

@@ -14,12 +14,14 @@ class ChatContract {
         data class GetRoom(val roomId: String) : ChatEvent()
         object LoadCurrentUser : ChatEvent()
         object ClearAll : ChatEvent()
+        object SetVisible : ChatEvent()
     }
 
     sealed class ChatState {
         object Loading : ChatState()
         object Failed : ChatState()
         object Success : ChatState()
+        data class Visible(val visibility: Boolean) : ChatState()
         data class Messages(val messages: List<ChatMessage>) : ChatState()
         data class Room(val room: ChatRoom) : ChatState()
         data class CurrentUser(val currentUser: ChatUserInfo) : ChatState()
@@ -33,6 +35,7 @@ class ChatContract {
     data class ChatStates(
         val loadState: ChatState,
         val room: ChatState.Room,
+        val visible: ChatState.Visible,
         val currentUser: ChatState.CurrentUser,
         val messages: ChatState.Messages
     ) : UiState

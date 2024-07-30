@@ -14,8 +14,10 @@ import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.posite.modern.ui.chat.AnimationTransitions.enterChat
 import com.posite.modern.ui.chat.AnimationTransitions.enterRooms
 import com.posite.modern.ui.chat.AnimationTransitions.enterTransition
+import com.posite.modern.ui.chat.AnimationTransitions.exitChat
 import com.posite.modern.ui.chat.AnimationTransitions.exitRooms
 import com.posite.modern.ui.chat.AnimationTransitions.exitTransition
 import com.posite.modern.ui.chat.auth.ChatAuthContractViewModel
@@ -70,20 +72,18 @@ fun ChatNavigation(
         }
         composable(
             ChatScreens.ChatRoomsScreen.route,
-            enterTransition = enterTransition,
-            exitTransition = exitTransition
+            enterTransition = enterRooms,
+            exitTransition = exitRooms
         ) {
             setBackPressedCallback()
             ChatRoomsScreen(viewModel = chatRoomContractViewModel) {
-                navController.navigate("${ChatScreens.ChatScreen.route}/${it.id}") {
-                    popUpTo(ChatScreens.ChatRoomsScreen.route) { inclusive = false }
-                }
+                navController.navigate("${ChatScreens.ChatScreen.route}/${it.id}")
             }
         }
         composable(
             "${ChatScreens.ChatScreen.route}/{roomId}",
-            enterTransition = enterRooms,
-            exitTransition = exitRooms
+            enterTransition = enterChat,
+            exitTransition = exitChat
         ) { backStackEntry ->
             val roomId =
                 backStackEntry.arguments?.getString("roomId") ?: ""
@@ -119,7 +119,7 @@ object AnimationTransitions {
             animationSpec = tween(durationMillis = TIME_DURATION, easing = FastOutLinearInEasing)
         )
     }
-    val enterRooms: AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition = {
+    val enterChat: AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition = {
         slideInHorizontally(
             initialOffsetX = { it },
             animationSpec = tween(
@@ -129,10 +129,30 @@ object AnimationTransitions {
         )
     }
 
-    val exitRooms: AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition =
+    val enterRooms: AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition = {
+        slideInHorizontally(
+            initialOffsetX = { -it / 3 },
+            animationSpec = tween(
+                durationMillis = TIME_DURATION,
+                easing = FastOutLinearInEasing
+            )
+        )
+    }
+
+    val exitRooms: AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition = {
+        slideOutHorizontally(
+            targetOffsetX = { -it / 3 },
+            animationSpec = tween(
+                durationMillis = TIME_DURATION,
+                easing = FastOutLinearInEasing
+            )
+        )
+    }
+
+    val exitChat: AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition =
         {
             slideOutHorizontally(
-                targetOffsetX = { -it / 3 },
+                targetOffsetX = { it },
                 animationSpec = tween(
                     durationMillis = TIME_DURATION,
                     easing = FastOutLinearInEasing

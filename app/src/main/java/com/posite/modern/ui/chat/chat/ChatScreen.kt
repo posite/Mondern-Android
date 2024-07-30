@@ -39,6 +39,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.posite.modern.R
 import com.posite.modern.data.remote.model.chat.ChatMessage
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.time.Instant
 import java.time.LocalDateTime
@@ -52,6 +53,7 @@ fun ChatScreen(roomId: String, viewModel: ChatContractViewModel, onBackPressed: 
     val lazyColumnState = rememberLazyListState()
     val scope = rememberCoroutineScope()
 
+
     LaunchedEffect(key1 = chatStates) {
         viewModel.loadCurrentUser()
         viewModel.getRoom(roomId)
@@ -61,11 +63,13 @@ fun ChatScreen(roomId: String, viewModel: ChatContractViewModel, onBackPressed: 
         scope.launch {
             if (chatStates.loadState is ChatContract.ChatState.Success && chatStates.messages.messages.isNotEmpty()) {
                 lazyColumnState.scrollToItem(chatStates.messages.messages.size - 1)
+                delay(300)
+                viewModel.setVisible()
             }
         }
     }
 
-    if (chatStates.room.room.id == roomId && chatStates.loadState is ChatContract.ChatState.Success) {
+    if (chatStates.room.room.id == roomId && chatStates.visible.visibility) {
         ChatContent(
             onBackPressed = onBackPressed,
             chatStates = chatStates,
@@ -81,10 +85,9 @@ private fun ChatContent(
     onBackPressed: () -> Unit,
     chatStates: ChatContract.ChatStates,
     lazyColumnState: LazyListState,
-    viewModel: ChatContractViewModel
+    viewModel: ChatContractViewModel,
 ) {
     val text = remember { mutableStateOf("") }
-
 
     Scaffold(modifier = Modifier
         .fillMaxSize(), topBar = {

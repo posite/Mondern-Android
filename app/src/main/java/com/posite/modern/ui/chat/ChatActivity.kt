@@ -18,13 +18,13 @@ import dagger.hilt.android.AndroidEntryPoint
 class ChatActivity : ComponentActivity() {
     private var backKeyPressedTime = 0L
     private lateinit var navHostController: NavHostController
+    private val chatAuthViewModel: ChatAuthContractViewModel by viewModels<ChatAuthContractViewModel>()
+    private val chatRoomContractViewModel: ChatRoomContractViewModel by viewModels<ChatRoomContractViewModel>()
+    private val chatContractViewModel: ChatContractViewModel by viewModels<ChatContractViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            val chatAuthViewModel: ChatAuthContractViewModel by viewModels<ChatAuthContractViewModel>()
-            val chatRoomContractViewModel: ChatRoomContractViewModel by viewModels<ChatRoomContractViewModel>()
-            val chatContractViewModel: ChatContractViewModel by viewModels<ChatContractViewModel>()
             navHostController = rememberNavController()
             ModernTheme {
                 ChatNavigation(
