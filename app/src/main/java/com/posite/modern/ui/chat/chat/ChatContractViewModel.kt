@@ -56,7 +56,6 @@ class ChatContractViewModel @Inject constructor(
                             copy(
                                 loadState = ChatContract.ChatState.Success,
                                 messages = ChatContract.ChatState.Messages(it),
-                                visible = ChatContract.ChatState.Visible(true)
                             )
                         }
                     }
@@ -92,13 +91,15 @@ class ChatContractViewModel @Inject constructor(
                 }
 
                 is ChatContract.ChatEvent.SetVisible -> {
-                    Log.d("ChatContractViewModel", "SetVisible")
+                    //Log.d("ChatContractViewModel", "SetVisible")
+                    Log.d("ChatContractViewModel", "${currentState.visible}")
                     setState { copy(visible = ChatContract.ChatState.Visible(true)) }
                 }
 
                 is ChatContract.ChatEvent.SetInvisible -> {
-                    Log.d("ChatContractViewModel", "SetInvisible")
                     setState { copy(visible = ChatContract.ChatState.Visible(false)) }
+                    //Log.d("ChatContractViewModel", "SetInvisible")
+                    //Log.d("ChatContractViewModel", "${currentState.visible}")
                 }
             }
         }

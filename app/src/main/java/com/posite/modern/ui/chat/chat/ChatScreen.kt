@@ -32,6 +32,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.TextStyle
@@ -60,14 +61,21 @@ fun ChatScreen(roomId: String, viewModel: ChatContractViewModel, onBackPressed: 
         if (chatStates.room.room.id.isNotBlank() && chatStates.currentUser.currentUser.email.isNotBlank()) {
             viewModel.loadMessages()
         }
+
+    }
+
+    LaunchedEffect(chatStates.messages.messages.size) {
         scope.launch {
-            if (chatStates.loadState is ChatContract.ChatState.Success && chatStates.messages.messages.isNotEmpty()) {
+            if (chatStates.loadState is ChatContract.ChatState.Success && chatStates.messages.messages.isNotEmpty() && chatStates.visible.visibility.not()) {
                 lazyColumnState.scrollToItem(chatStates.messages.messages.size - 1)
-                delay(310)
+                delay(100)
                 viewModel.setVisible()
+                //Log.d("ChatScreen", "ChatScreen: ${chatStates.messages.messages.size}")
             }
         }
     }
+
+
 
     ChatContent(
         onBackPressed = onBackPressed,
@@ -91,7 +99,6 @@ private fun ChatContent(
         .fillMaxSize(), topBar = {
         TopAppBar(navigationIcon = {
             IconButton(onClick = {
-                viewModel.setInvisible()
                 onBackPressed()
             }) {
                 Icon(
@@ -109,10 +116,10 @@ private fun ChatContent(
                 .padding(horizontal = 16.dp)
         ) {
             // Display the chat messages
-            if (chatStates.visible.visibility) {
+            Column(modifier = Modifier.weight(1f)) {
                 LazyColumn(
-                    modifier = Modifier.weight(1f),
-                    state = lazyColumnState
+                    state = lazyColumnState,
+                    modifier = Modifier.alpha(if (viewModel.currentState.visible.visibility) 1f else 0f)
                 ) {
                     items(chatStates.messages.messages) {
                         ChatMessageItem(message = it, chatStates.currentUser.currentUser.email)

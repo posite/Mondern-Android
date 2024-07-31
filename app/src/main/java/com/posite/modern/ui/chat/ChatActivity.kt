@@ -54,7 +54,7 @@ class ChatActivity : ComponentActivity() {
                     }
                     backKeyPressedTime = System.currentTimeMillis()
                 } else {
-                    chatContractViewModel.setInvisible()
+                    chatContractViewModel.clearAll()
                     navHostController.navigateUp()
                 }
             }
