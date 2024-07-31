@@ -89,7 +89,8 @@ fun ChatNavigation(
                 backStackEntry.arguments?.getString("roomId") ?: ""
             ChatScreen(roomId = roomId, chatContractViewModel) {
                 navController.navigateUp()
-                //chatContractViewModel.clearAll()
+                //chatContractViewModel.setInvisible()
+                chatContractViewModel.clearAll()
             }
         }
     }

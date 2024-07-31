@@ -1,6 +1,5 @@
 package com.posite.modern.data.repository.chat
 
-import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.posite.modern.data.remote.model.chat.ChatUserInfo
@@ -39,7 +38,7 @@ class ChatRepository @Inject constructor(
             val userDocument = firestore.collection("users").document(uid).get().await()
             val user = userDocument.toObject(ChatUserInfo::class.java)
             if (user != null) {
-                Log.d("user2", "$uid")
+                //Log.d("user2", "$uid")
                 DataResult.Success(user)
             } else {
                 DataResult.Error(Exception("User data not found"))
