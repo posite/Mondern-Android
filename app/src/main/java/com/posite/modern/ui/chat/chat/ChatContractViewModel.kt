@@ -54,8 +54,8 @@ class ChatContractViewModel @Inject constructor(
                     chatMessageRepository.getChatMessages(currentState.room.room.id).collect {
                         setState {
                             copy(
-                                loadState = ChatContract.ChatState.Success,
-                                messages = ChatContract.ChatState.Messages(it),
+                                loadState = ChatContract.ChatState.Success(room.room.id),
+                                messages = ChatContract.ChatState.Messages(it)
                             )
                         }
                     }

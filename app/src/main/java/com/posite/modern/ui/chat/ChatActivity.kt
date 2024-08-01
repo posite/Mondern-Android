@@ -44,7 +44,7 @@ class ChatActivity : ComponentActivity() {
             override fun handleOnBackPressed() {
                 if (navHostController.currentDestination?.route == ChatScreens.ChatRoomsScreen.route) {
                     if (backKeyPressedTime + 2000 > System.currentTimeMillis()) {
-                        finish()
+                        finishAffinity()
                     } else {
                         Toast.makeText(
                             this@ChatActivity,

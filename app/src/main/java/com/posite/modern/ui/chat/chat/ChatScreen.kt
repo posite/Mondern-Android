@@ -1,5 +1,6 @@
 package com.posite.modern.ui.chat.chat
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -66,11 +67,14 @@ fun ChatScreen(roomId: String, viewModel: ChatContractViewModel, onBackPressed: 
 
     LaunchedEffect(chatStates.messages.messages.size) {
         scope.launch {
-            if (chatStates.loadState is ChatContract.ChatState.Success && chatStates.messages.messages.isNotEmpty() && chatStates.visible.visibility.not()) {
-                lazyColumnState.scrollToItem(chatStates.messages.messages.size - 1)
-                delay(100)
-                viewModel.setVisible()
-                //Log.d("ChatScreen", "ChatScreen: ${chatStates.messages.messages.size}")
+            if (chatStates.loadState is ChatContract.ChatState.Success) {
+                if (chatStates.loadState.roomId == roomId && chatStates.messages.messages.isNotEmpty() && chatStates.visible.visibility.not()) {
+                    Log.d("ChatScreen", "ChatScreen: ${chatStates.messages.messages.size}")
+                    delay(200)
+                    lazyColumnState.scrollToItem(chatStates.messages.messages.size - 1)
+                    delay(200)
+                    viewModel.setVisible()
+                }
             }
         }
     }

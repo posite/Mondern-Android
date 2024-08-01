@@ -21,7 +21,7 @@ class ChatContract {
     sealed class ChatState {
         object Loading : ChatState()
         object Failed : ChatState()
-        object Success : ChatState()
+        data class Success(val roomId: String) : ChatState()
         data class Visible(val visibility: Boolean) : ChatState()
         data class Messages(val messages: List<ChatMessage>) : ChatState()
         data class Room(val room: ChatRoom) : ChatState()
